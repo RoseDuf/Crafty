@@ -1,5 +1,7 @@
 # Crafty
 
+Unity version: 2019.4.0f1
+
 ## Rules:
 
 * If you want to test something new in a scene, create a new scene with your name. Ideally, each one of us should have our own scenes to work on.
