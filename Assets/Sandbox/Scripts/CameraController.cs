@@ -4,28 +4,21 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    [SerializeField] GameObject cameraObject;
-
     [SerializeField] GameObject ballFocus;
     [SerializeField] GameObject projectionFocus;
 
     [SerializeField] float cameraMoveSpeed;
     [SerializeField] float clampAngle; //how high/low we want to be able to look
     [SerializeField] float mouseSensitivity; 
-
-    private Vector3 followPosition;
+    
     private Vector3 followRotation;
-
-    private float finalInputX;
-    private float finalInputZ;
 
     // Start is called before the first frame update
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
-        followPosition = transform.position;
+        
         followRotation = transform.localRotation.eulerAngles;
     }
 
