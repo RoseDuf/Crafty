@@ -9,8 +9,13 @@ namespace Game.BallController
     {
 
         [SerializeField] float hit_power;
+        [SerializeField] Transform endPointProjection;
+        [SerializeField] float horizontalCurve; //temporaty, will get this from meters later
 
-        Rigidbody rb;
+        private Rigidbody rb;
+        private const float GRAVITY = 9.8f;
+        private float angle;
+        private float z;
 
         private void Awake()
         {
@@ -26,6 +31,8 @@ namespace Game.BallController
         private void FixedUpdate()
         {
             HandleInput();
+            FindInitialAngleY();
+            FindFinalZForCurve();
         }
 
         // Update is called once per frame
@@ -38,13 +45,25 @@ namespace Game.BallController
         {
             if (Input.GetButtonDown("Lob"))
             {
-                print("hit");
-                rb.AddForce(hit_power, hit_power, hit_power, ForceMode.Impulse);
+                rb.AddForce((hit_power / Mathf.Cos(angle)), (hit_power / Mathf.Sin(angle)), 0.0f, ForceMode.Impulse);
             }
             if (Input.GetButtonDown("Straight"))
             {
 
             }
         }
+
+        void FindInitialAngleY()
+        {
+            angle = (Mathf.Asin((endPointProjection.position.x * -Physics.gravity.y)/ Mathf.Pow(hit_power, 2))) / 2;
+            angle = angle * Mathf.Rad2Deg;
+            print(angle);
+        }
+
+        void FindFinalZForCurve()
+        {
+            z = (horizontalCurve * Mathf.Pow(endPointProjection.position.x, 2)) / (2 * (hit_power/Mathf.Cos(angle)));
+        }
+
     }
 }
