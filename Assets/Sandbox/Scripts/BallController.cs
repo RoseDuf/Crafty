@@ -13,7 +13,8 @@ namespace Game.BallController
         [SerializeField] float horizontalCurve; //temporaty, will get this from meters later
 
         private Rigidbody rb;
-        private float angle;
+        public float angleTheta; //for x, y, z vector
+        public float anglePhi; // for x, z vector
         private float z;
 
         private void Awake()
@@ -30,7 +31,7 @@ namespace Game.BallController
         private void FixedUpdate()
         {
             HandleInput();
-            FindInitialAngleY();
+            FindInitialAngles();
             FindFinalZForCurve();
         }
 
@@ -44,7 +45,7 @@ namespace Game.BallController
         {
             if (Input.GetButtonDown("Lob"))
             {
-                rb.velocity = new Vector3((hit_power * Mathf.Cos(angle)), (hit_power * Mathf.Sin(angle)), 0);
+                rb.velocity = new Vector3(hit_power * Mathf.Cos(angleTheta) * Mathf.Cos(anglePhi), hit_power * Mathf.Sin(angleTheta), hit_power * Mathf.Cos(angleTheta) * Mathf.Sin(anglePhi));
             }
             if (Input.GetButtonDown("Straight"))
             {
@@ -52,21 +53,25 @@ namespace Game.BallController
             }
         }
 
-        void FindInitialAngleY()
+        void FindInitialAngles()
         {
+            float magnitudeOfVectorXZ = Mathf.Sqrt(Mathf.Pow(endPointProjection.position.x, 2) + Mathf.Pow(endPointProjection.position.z, 2));
+
             //angle is in radians
-            angle = (Mathf.PI / 2) - ((Mathf.Asin(((endPointProjection.position.x) * -Physics.gravity.y)/ Mathf.Pow(hit_power, 2))) / 2);
+            angleTheta = (Mathf.PI / 2) - ((Mathf.Asin((magnitudeOfVectorXZ * -Physics.gravity.y)/ Mathf.Pow(hit_power, 2))) / 2);
 
             //max distance can only be achieved at 45 degree angle
-            if (angle * Mathf.Rad2Deg < 45.0f)
+            if (angleTheta * Mathf.Rad2Deg < 45.0f)
             {
-                angle = 0;
+                angleTheta = 0;
             }
+
+            anglePhi = Mathf.Acos(endPointProjection.position.x / magnitudeOfVectorXZ);
         }
 
         void FindFinalZForCurve()
         {
-            z = (horizontalCurve * Mathf.Pow(endPointProjection.position.x, 2)) / (2 * (hit_power/Mathf.Cos(angle)));
+            z = (horizontalCurve * Mathf.Pow(endPointProjection.position.x, 2)) / (2 * (hit_power/Mathf.Cos(angleTheta)));
         }
 
     }

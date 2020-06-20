@@ -439,6 +439,8 @@ MonoBehaviour:
   hit_power: 10
   endPointProjection: {fileID: 1411354759}
   horizontalCurve: 0
+  angleTheta: 0
+  anglePhi: 0
 --- !u!1 &633744715
 GameObject:
   m_ObjectHideFlags: 0
@@ -469,7 +471,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballFocus: {fileID: 518927137}
-  projectionFocus: {fileID: 0}
+  projectionFocus: {fileID: 1411354756}
   cameraMoveSpeed: 120
   clampAngle: 80
   mouseSensitivity: 200
@@ -592,6 +594,7 @@ GameObject:
   - component: {fileID: 1411354759}
   - component: {fileID: 1411354758}
   - component: {fileID: 1411354757}
+  - component: {fileID: 1411354760}
   m_Layer: 0
   m_Name: Projection End Point
   m_TagString: end point
@@ -654,12 +657,24 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1411354756}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.24, y: 0, z: 0}
+  m_LocalPosition: {x: 3, y: 0, z: 3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1411354760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1411354756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44ad62fe67987644da9ec169a94a2170, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1514786086
 GameObject:
   m_ObjectHideFlags: 0
