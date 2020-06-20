@@ -436,7 +436,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69de50906fdb7394dbdc41118a9799de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hit_power: 10
+  hit_power: 20
   endPointProjection: {fileID: 1411354759}
   horizontalCurve: 0
   angleTheta: 0
