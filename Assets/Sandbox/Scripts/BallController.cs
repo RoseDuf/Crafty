@@ -13,7 +13,6 @@ namespace Game.BallController
         [SerializeField] float horizontalCurve; //temporaty, will get this from meters later
 
         private Rigidbody rb;
-        private const float GRAVITY = 9.8f;
         private float angle;
         private float z;
 
@@ -45,7 +44,7 @@ namespace Game.BallController
         {
             if (Input.GetButtonDown("Lob"))
             {
-                rb.AddForce((hit_power / Mathf.Cos(angle)), (hit_power / Mathf.Sin(angle)), 0.0f, ForceMode.Impulse);
+                rb.velocity = new Vector3((hit_power * Mathf.Cos(angle)), (hit_power * Mathf.Sin(angle)), 0);
             }
             if (Input.GetButtonDown("Straight"))
             {
@@ -55,9 +54,14 @@ namespace Game.BallController
 
         void FindInitialAngleY()
         {
-            angle = (Mathf.Asin((endPointProjection.position.x * -Physics.gravity.y)/ Mathf.Pow(hit_power, 2))) / 2;
-            angle = angle * Mathf.Rad2Deg;
-            print(angle);
+            //angle is in radians
+            angle = (Mathf.PI / 2) - ((Mathf.Asin(((endPointProjection.position.x) * -Physics.gravity.y)/ Mathf.Pow(hit_power, 2))) / 2);
+
+            //max distance can only be achieved at 45 degree angle
+            if (angle * Mathf.Rad2Deg < 45.0f)
+            {
+                angle = 0;
+            }
         }
 
         void FindFinalZForCurve()

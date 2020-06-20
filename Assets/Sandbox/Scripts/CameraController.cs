@@ -9,17 +9,20 @@ public class CameraController : MonoBehaviour
 
     [SerializeField] float cameraMoveSpeed;
     [SerializeField] float clampAngle; //how high/low we want to be able to look
-    [SerializeField] float mouseSensitivity; 
-    
+    [SerializeField] float mouseSensitivity;
+
     private Vector3 followRotation;
+    private Transform target;
 
     // Start is called before the first frame update
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        
+
         followRotation = transform.localRotation.eulerAngles;
+
+        target = projectionFocus.transform;
     }
 
     private void Update()
@@ -34,14 +37,22 @@ public class CameraController : MonoBehaviour
 
         Quaternion localRotation = Quaternion.Euler(followRotation.x, followRotation.y, 0.0f);
         transform.rotation = localRotation;
+        
+        HandleInput();
     }
 
     // Update is called once per frame
     void LateUpdate()
     {
-        Transform target = ballFocus.transform;
-
         float step = cameraMoveSpeed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, target.position, step);
+    }
+
+    void HandleInput()
+    {
+        if (Input.GetButtonDown("Lob") || Input.GetButtonDown("Straight"))
+        {
+            target = ballFocus.transform;
+        }
     }
 }
