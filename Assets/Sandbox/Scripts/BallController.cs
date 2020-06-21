@@ -15,7 +15,9 @@ namespace Game.BallController
         private Rigidbody rb;
         public float angleTheta; //for x, y, z vector
         public float anglePhi; // for x, z vector
-        private float z;
+        private float time;
+        private Vector3 vectorFromBallToProjectionPoint;
+        private float deltaZ; //to find final z value if there is horizontal curve
 
         private void Awake()
         {
@@ -25,27 +27,40 @@ namespace Game.BallController
         // Start is called before the first frame update
         void Start()
         {
-
+            vectorFromBallToProjectionPoint = new Vector3(0f, 0f, 0f);
         }
 
         private void FixedUpdate()
         {
-            HandleInput();
+            UpdateVectorFromBallToProjectionPoint();
             FindInitialAngles();
-            FindFinalZForCurve();
+
+            HandleInput();
         }
 
         // Update is called once per frame
         void Update()
         {
-
+            
         }
 
         void HandleInput()
         {
+            float x = hit_power * Mathf.Cos(angleTheta) * Mathf.Cos(anglePhi);
+            float y = hit_power * Mathf.Sin(angleTheta);
+            float z = hit_power * Mathf.Cos(angleTheta) * Mathf.Sin(anglePhi);
+
+            x = vectorFromBallToProjectionPoint.x < 0 ? -x : x;
+
             if (Input.GetButtonDown("Lob"))
             {
-                rb.velocity = new Vector3(hit_power * Mathf.Cos(angleTheta) * Mathf.Cos(anglePhi), hit_power * Mathf.Sin(angleTheta), hit_power * Mathf.Cos(angleTheta) * Mathf.Sin(anglePhi));
+                rb.velocity = new Vector3(x, y, z);
+
+                if (horizontalCurve > 0)
+                {
+                    print("curve");
+                    rb.AddForce(Vector3.Cross(vectorFromBallToProjectionPoint, Vector3.up), ForceMode.Acceleration);
+                }
             }
             if (Input.GetButtonDown("Straight"))
             {
@@ -55,23 +70,24 @@ namespace Game.BallController
 
         void FindInitialAngles()
         {
-            float magnitudeOfVectorXZ = Mathf.Sqrt(Mathf.Pow(endPointProjection.position.x, 2) + Mathf.Pow(endPointProjection.position.z, 2));
+            float magnitudeOfVectorXZ = Mathf.Sqrt(Mathf.Pow(vectorFromBallToProjectionPoint.x, 2) + Mathf.Pow(vectorFromBallToProjectionPoint.z, 2));
 
             //angle is in radians
             angleTheta = (Mathf.PI / 2) - ((Mathf.Asin((magnitudeOfVectorXZ * -Physics.gravity.y)/ Mathf.Pow(hit_power, 2))) / 2);
 
-            //max distance can only be achieved at 45 degree angle
-            if (angleTheta * Mathf.Rad2Deg < 45.0f)
-            {
-                angleTheta = 0;
-            }
-
-            anglePhi = Mathf.Acos(endPointProjection.position.x / magnitudeOfVectorXZ);
+            time = (2 / -Physics.gravity.y) * hit_power * Mathf.Sin(angleTheta);
+            
+            anglePhi = Mathf.Asin((vectorFromBallToProjectionPoint.z - ((horizontalCurve / 2) * Mathf.Pow(time, 2))) / (hit_power * Mathf.Cos(angleTheta) * time));
         }
 
         void FindFinalZForCurve()
         {
-            z = (horizontalCurve * Mathf.Pow(endPointProjection.position.x, 2)) / (2 * (hit_power/Mathf.Cos(angleTheta)));
+            //z = (horizontalCurve * Mathf.Pow(endPointProjection.position.x, 2)) / (2 * (hit_power / Mathf.Cos(angleTheta)));
+        }
+
+        void UpdateVectorFromBallToProjectionPoint()
+        {
+            vectorFromBallToProjectionPoint = endPointProjection.position - transform.position;
         }
 
     }
