@@ -22,21 +22,20 @@ public class ProjectionController : MonoBehaviour
 
     void FixedUpdate()
     {
-        MoveCharacter();
+        MoveProjection();
     }
 
     void HandleInput()
     {
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
-        
+
         input_vector = new Vector3(horizontal, 0, vertical);
     }
 
-    void MoveCharacter()
+    void MoveProjection()
     {
         transform.Translate(Vector3.right * input_vector.x * Time.deltaTime * speed);
         transform.Translate(Vector3.forward * input_vector.z * Time.deltaTime * speed);
     }
-
 }

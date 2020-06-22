@@ -9,15 +9,22 @@ namespace Game.BallController
     {
 
         [SerializeField] float hit_power;
-        [SerializeField] Transform endPointProjection;
+        [SerializeField] GameObject endPointProjection;
         [SerializeField] float horizontalCurve; //temporaty, will get this from meters later
 
         private Rigidbody rb;
         public float angleTheta; //for x, y, z vector
         public float anglePhi; // for x, z vector
-        private float time;
-        private Vector3 vectorFromBallToProjectionPoint;
+        public float finalZ;
+        public float finalX;
+        public float time;
+        public Vector3 vectorFromBallToProjectionPoint;
         private float deltaZ; //to find final z value if there is horizontal curve
+
+        private float previousHorizontalCurve;
+
+        bool shoot;
+        bool thereIsCurve;
 
         private void Awake()
         {
@@ -27,13 +34,19 @@ namespace Game.BallController
         // Start is called before the first frame update
         void Start()
         {
-            vectorFromBallToProjectionPoint = new Vector3(0f, 0f, 0f);
+            shoot = false;
+            thereIsCurve = false;
+            vectorFromBallToProjectionPoint = endPointProjection.transform.position;
         }
 
         private void FixedUpdate()
         {
-            UpdateVectorFromBallToProjectionPoint();
             FindInitialAngles();
+            FindFinalXZForCurve();
+
+            previousHorizontalCurve = horizontalCurve;
+            
+            UpdateVectorFromBallToProjectionPoint();
 
             HandleInput();
         }
@@ -41,7 +54,7 @@ namespace Game.BallController
         // Update is called once per frame
         void Update()
         {
-            
+
         }
 
         void HandleInput()
@@ -54,17 +67,19 @@ namespace Game.BallController
 
             if (Input.GetButtonDown("Lob"))
             {
-                rb.velocity = new Vector3(x, y, z);
+                shoot = true; 
 
-                if (horizontalCurve > 0)
-                {
-                    print("curve");
-                    rb.AddForce(Vector3.Cross(vectorFromBallToProjectionPoint, Vector3.up), ForceMode.Acceleration);
-                }
+                rb.velocity = new Vector3(x, y, z);
             }
+
             if (Input.GetButtonDown("Straight"))
             {
 
+            }
+            
+            if (shoot && horizontalCurve > 0)
+            {
+                rb.AddForce(Vector3.Normalize(Vector3.Cross(vectorFromBallToProjectionPoint, Vector3.up)) * horizontalCurve, ForceMode.Acceleration);
             }
         }
 
@@ -73,22 +88,52 @@ namespace Game.BallController
             float magnitudeOfVectorXZ = Mathf.Sqrt(Mathf.Pow(vectorFromBallToProjectionPoint.x, 2) + Mathf.Pow(vectorFromBallToProjectionPoint.z, 2));
 
             //angle is in radians
-            angleTheta = (Mathf.PI / 2) - ((Mathf.Asin((magnitudeOfVectorXZ * -Physics.gravity.y)/ Mathf.Pow(hit_power, 2))) / 2);
+            angleTheta = (Mathf.PI / 2) - ((Mathf.Asin((magnitudeOfVectorXZ * -Physics.gravity.y) / Mathf.Pow(hit_power, 2))) / 2);
 
             time = (2 / -Physics.gravity.y) * hit_power * Mathf.Sin(angleTheta);
-            
-            anglePhi = Mathf.Asin((vectorFromBallToProjectionPoint.z - ((horizontalCurve / 2) * Mathf.Pow(time, 2))) / (hit_power * Mathf.Cos(angleTheta) * time));
+
+            anglePhi = Mathf.Atan(vectorFromBallToProjectionPoint.z / vectorFromBallToProjectionPoint.x);
         }
 
-        void FindFinalZForCurve()
+        void FindFinalXZForCurve()
         {
-            //z = (horizontalCurve * Mathf.Pow(endPointProjection.position.x, 2)) / (2 * (hit_power / Mathf.Cos(angleTheta)));
+            if (horizontalCurve != 0.0f)
+            {
+                finalX = hit_power * Mathf.Cos(angleTheta) * Mathf.Cos(anglePhi) * time + transform.position.x;
+                finalZ = hit_power * Mathf.Cos(angleTheta) * Mathf.Sin(anglePhi) * time + (((horizontalCurve / rb.mass) / 2) * Mathf.Pow(time, 2)) + transform.position.z;
+            }
+            else
+            {
+                if (horizontalCurve == 0.0f && previousHorizontalCurve != 0)
+                {
+                    finalX = vectorFromBallToProjectionPoint.x;
+                    finalZ = vectorFromBallToProjectionPoint.z;
+                }
+                else
+                {
+                    finalX = endPointProjection.transform.position.x;
+                    finalZ = endPointProjection.transform.position.z;
+                }
+            }
+        
+            if (!shoot)
+            {
+                CorrectProjectionPosition();
+            }
         }
 
         void UpdateVectorFromBallToProjectionPoint()
         {
-            vectorFromBallToProjectionPoint = endPointProjection.position - transform.position;
+            if (horizontalCurve == 0.0f)
+            {
+                vectorFromBallToProjectionPoint = endPointProjection.transform.position - transform.position;
+            }
         }
 
+        void CorrectProjectionPosition()
+        {
+            endPointProjection.transform.position = new Vector3(finalX, endPointProjection.transform.position.y, finalZ);
+        }
+        
     }
 }
