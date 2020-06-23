@@ -15,8 +15,8 @@ namespace Game.BallController
         private Rigidbody rb;
         public float angleTheta; //for x, y, z vector
         public float anglePhi; // for x, z vector
-        public float finalZ;
-        public float finalX;
+        public float finalZ; // for horizontal curve
+        public float finalX; // for horizontal curve
         public float time;
         public Vector3 vectorFromBallToProjectionPoint;
         private float deltaZ; //to find final z value if there is horizontal curve
@@ -42,6 +42,7 @@ namespace Game.BallController
         private void FixedUpdate()
         {
             FindInitialAngles();
+            FindTotalTime();
             FindFinalXZForCurve();
 
             previousHorizontalCurve = horizontalCurve;
@@ -64,11 +65,11 @@ namespace Game.BallController
             float z = hit_power * Mathf.Cos(angleTheta) * Mathf.Sin(anglePhi);
 
             x = vectorFromBallToProjectionPoint.x < 0 ? -x : x;
+            z = vectorFromBallToProjectionPoint.z < 0 ? -z : z;
 
             if (Input.GetButtonDown("Lob"))
             {
                 shoot = true; 
-
                 rb.velocity = new Vector3(x, y, z);
             }
 
@@ -77,9 +78,9 @@ namespace Game.BallController
 
             }
             
-            if (shoot && horizontalCurve > 0)
+            if (shoot && horizontalCurve != 0)
             {
-                rb.AddForce(Vector3.Normalize(Vector3.Cross(vectorFromBallToProjectionPoint, Vector3.up)) * horizontalCurve, ForceMode.Acceleration);
+                rb.AddForce(Vector3.Normalize(Vector3.Cross(vectorFromBallToProjectionPoint, Vector3.up)) * -horizontalCurve, ForceMode.Acceleration);
             }
         }
 
@@ -87,20 +88,34 @@ namespace Game.BallController
         {
             float magnitudeOfVectorXZ = Mathf.Sqrt(Mathf.Pow(vectorFromBallToProjectionPoint.x, 2) + Mathf.Pow(vectorFromBallToProjectionPoint.z, 2));
 
-            //angle is in radians
+            // Angles are in radians.
+
+            // Angle between the XZ axis and the Y axis.
             angleTheta = (Mathf.PI / 2) - ((Mathf.Asin((magnitudeOfVectorXZ * -Physics.gravity.y) / Mathf.Pow(hit_power, 2))) / 2);
 
-            time = (2 / -Physics.gravity.y) * hit_power * Mathf.Sin(angleTheta);
+            // Angle between the X and Z axis.
+            anglePhi = Mathf.Abs(Mathf.Atan(vectorFromBallToProjectionPoint.z / vectorFromBallToProjectionPoint.x));
+        }
 
-            anglePhi = Mathf.Atan(vectorFromBallToProjectionPoint.z / vectorFromBallToProjectionPoint.x);
+        void FindTotalTime()
+        {
+            time = (2 / -Physics.gravity.y) * hit_power * Mathf.Sin(angleTheta);
         }
 
         void FindFinalXZForCurve()
         {
             if (horizontalCurve != 0.0f)
             {
-                finalX = hit_power * Mathf.Cos(angleTheta) * Mathf.Cos(anglePhi) * time + transform.position.x;
-                finalZ = hit_power * Mathf.Cos(angleTheta) * Mathf.Sin(anglePhi) * time + (((horizontalCurve / rb.mass) / 2) * Mathf.Pow(time, 2)) + transform.position.z;
+                // Need this for when vectorFromBallToProjectionPoint is diagonal.
+                float hypothenuse = (((-horizontalCurve / rb.mass) / 2) * Mathf.Pow(time, 2));
+
+                finalX = vectorFromBallToProjectionPoint.x;
+                // Adjust to axis.
+                finalX = vectorFromBallToProjectionPoint.z < 0 ? finalX + (hypothenuse * Mathf.Sin(anglePhi)) : finalX - (hypothenuse * Mathf.Sin(anglePhi));
+
+                finalZ = vectorFromBallToProjectionPoint.z;
+                // Adjust to axis.
+                finalZ = vectorFromBallToProjectionPoint.x < 0 ? finalZ - (hypothenuse * Mathf.Cos(anglePhi)) : finalZ + (hypothenuse * Mathf.Cos(anglePhi));
             }
             else
             {
@@ -116,12 +131,9 @@ namespace Game.BallController
                 }
             }
         
-            if (!shoot)
-            {
-                CorrectProjectionPosition();
-            }
+            CorrectProjectionPosition();
         }
-
+        
         void UpdateVectorFromBallToProjectionPoint()
         {
             if (horizontalCurve == 0.0f)
