@@ -22,10 +22,10 @@ namespace Game.Scenes
 
         private void handleInput()
         {
-            if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown("Submit"))
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Submit"))
                 alterScrollSpeed(3);
 
-            if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp("Submit"))
+            if (Input.GetKeyUp(KeyCode.Space) || Input.GetButtonUp("Submit"))
                 alterScrollSpeed();
         }
 
