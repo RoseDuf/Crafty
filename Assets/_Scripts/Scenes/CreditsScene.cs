@@ -20,23 +20,23 @@ namespace Game.Scenes
             scrollSpeed = movementSpeed;
         }
 
-        private void handleInput()
+        private void HandleInput()
         {
             if (Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Submit"))
-                alterScrollSpeed(3);
+                AlterScrollSpeed(3);
 
             if (Input.GetKeyUp(KeyCode.Space) || Input.GetButtonUp("Submit"))
-                alterScrollSpeed();
+                AlterScrollSpeed();
         }
 
-        private void alterScrollSpeed(float speedFactor = 1)
+        private void AlterScrollSpeed(float speedFactor = 1)
         {
             scrollSpeed = movementSpeed * speedFactor;
         }
 
         private void Update()
         {
-            handleInput();
+            HandleInput();
 
             scrollingArea.transform.Translate(0, scrollSpeed * Time.deltaTime, 0);
 
