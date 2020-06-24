@@ -63,6 +63,8 @@ namespace Tenacious.Audio
 
         protected override void Awake()
         {
+            base.Awake();
+
             if (musicSource != null)
                musicSource.priority = 0;
         }
