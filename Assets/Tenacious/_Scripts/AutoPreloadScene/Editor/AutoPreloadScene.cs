@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -45,13 +46,14 @@ public static class AutoPreloadScene
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                // User pressed play, autoload preload scene but make sure user saves changes
-                PreviousScene = EditorSceneManager.GetActiveScene().path;
+                // User pressed play
+
+                // autoload preload scene but make sure user saves changes
                 if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
                 {
                     try
                     {
-                        EditorSceneManager.OpenScene(PreloadScene);
+                        EditorSceneManager.OpenScene(PreloadScene, OpenSceneMode.Additive);
                     }
                     catch
                     {
@@ -66,17 +68,9 @@ public static class AutoPreloadScene
                 }
             }
 
-            // we were about to play, but user pressed stop, reload previous scene
             if (!EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                try
-                {
-                    EditorSceneManager.OpenScene(PreviousScene);
-                }
-                catch
-                {
-                    Debug.LogError("Previous Scene not found: " + PreviousScene);
-                }
+                // we were about to play, but user pressed stop
             }
         }
     }
@@ -96,11 +90,5 @@ public static class AutoPreloadScene
     {
         get { return EditorPrefs.GetString(EDITOR_PREFERENCE_PRELOAD_SCENE, "Main.unity"); }
         set { EditorPrefs.SetString(EDITOR_PREFERENCE_PRELOAD_SCENE, value); }
-    }
-
-    private static string PreviousScene
-    {
-        get { return EditorPrefs.GetString(EDITOR_PREFERENCE_PREVIOUS_SCENE, EditorSceneManager.GetActiveScene().path); }
-        set { EditorPrefs.SetString(EDITOR_PREFERENCE_PREVIOUS_SCENE, value); }
     }
 }

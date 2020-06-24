@@ -772,7 +772,9 @@ MonoBehaviour:
     m_LineSpacing: 1
   m_Text: 'BionicBear
 
-    Rose Dufresne'
+    Rose Dufresne
+
+    George Mavros'
 --- !u!222 &985054549
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1000,7 +1002,7 @@ MonoBehaviour:
 
     Daniel Rinaldi  [TenaciousDan]
 
-    George ???????'
+    George Mavros'
 --- !u!222 &1305659248
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1210,6 +1212,7 @@ MonoBehaviour:
     m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: '3D Models
+
 
 '
 --- !u!222 &1954053815
