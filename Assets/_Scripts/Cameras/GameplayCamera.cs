@@ -16,7 +16,7 @@ namespace Game.Cameras
 
         [Range(-80f, 80f)]
         [Tooltip("The minimum angle that the camera can move vertically")]
-        [SerializeField] private float minAngleY = 15f;
+        [SerializeField] private float minAngleY = 0f;
         [Range(-80f, 80f)]
         [Tooltip("The maximum angle that the camera can move vertically")]
         [SerializeField] private float maxAngleY = 80f;
@@ -35,12 +35,18 @@ namespace Game.Cameras
         private Vector3 positionBeforeRoaming;
         private Vector2 rotation;
 
+        private float maxDistanceToTarget;
+        private float minDistanceToTarget;
+
         private void Awake()
         {
             mode = Mode.LockedOnTarget;
             mouseMovement = Vector2.zero;
             positionBeforeRoaming = Vector3.zero;
             rotation = Vector2.zero;
+
+            maxDistanceToTarget = target == null ? offset.magnitude : (target.position - offset).magnitude;
+            minDistanceToTarget = 0;
         }
 
         private void Start()
@@ -84,6 +90,15 @@ namespace Game.Cameras
                 mouseMovement.y = Mathf.Clamp(mouseMovement.y, minAngleY, maxAngleY);
 
                 Vector3 desiredPosition = target.position + Quaternion.Euler(mouseMovement.y, mouseMovement.x, 0) * offset;
+
+                // object avoidance
+                RaycastHit hit;
+                if (Physics.Linecast(target.position, desiredPosition, out hit))
+                {
+                    if ((hit.distance * 1e-3f) < maxDistanceToTarget && (hit.distance * 1e-3f) > minDistanceToTarget)
+                        desiredPosition = hit.point;
+                }
+
                 Vector3 smoothedPosition = Vector3.Lerp(this.transform.position, desiredPosition, smoothing);
 
                 this.transform.position = smoothedPosition;
