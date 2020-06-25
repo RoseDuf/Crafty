@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-using UnityEngine.UI;
-
 namespace Tenacious.UI
 {
     [RequireComponent(typeof(Canvas))]
