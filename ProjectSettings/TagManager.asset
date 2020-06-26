@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - end point
+  - TargetCreature
   layers:
   - Default
   - TransparentFX
@@ -14,8 +15,8 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
+  - Hole
+  - Player
   - 
   - 
   - 
