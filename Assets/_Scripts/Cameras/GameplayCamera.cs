@@ -92,11 +92,13 @@ namespace Game.Cameras
                 Vector3 desiredPosition = target.position + Quaternion.Euler(mouseMovement.y, mouseMovement.x, 0) * offset;
 
                 // object avoidance
-                RaycastHit hit;
-                if (Physics.Linecast(target.position, desiredPosition, out hit))
+                if (Physics.Linecast(target.position, desiredPosition, out RaycastHit hit))
                 {
-                    if ((hit.distance * 1e-3f) < maxDistanceToTarget && (hit.distance * 1e-3f) > minDistanceToTarget)
-                        desiredPosition = hit.point;
+                    if (hit.transform.GetComponentInParent<CameraObstruction>() != null)
+                    {
+                        if ((hit.distance * 1e-3f) < maxDistanceToTarget && (hit.distance * 1e-3f) > minDistanceToTarget)
+                            desiredPosition = hit.point;
+                    }
                 }
 
                 Vector3 smoothedPosition = Vector3.Lerp(this.transform.position, desiredPosition, smoothing);
