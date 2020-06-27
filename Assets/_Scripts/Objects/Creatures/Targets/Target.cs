@@ -50,7 +50,7 @@ namespace Game.Objects.Creatures.Targets
             IsCaptured = true;
             TurnIntoStar();
 
-            OnCapture(this);
+            OnCapture?.Invoke(this);
         }
 
         private void TurnIntoStar()
