@@ -6,6 +6,7 @@ namespace Game.Objects.Creatures.Targets
 {
     public class Target : MonoBehaviour
     {
+        [SerializeField] private GameObject creatureObject;
         [SerializeField] private GameObject starObject;
         [SerializeField] private GameObject holePrefab;
 
@@ -13,7 +14,7 @@ namespace Game.Objects.Creatures.Targets
 
         public bool IsCaptured { get; set; }
 
-        private bool adjustPosition;
+        private bool adjustStarPosition;
         private Vector3 aboveHolePosition;
 
         private void Awake()
@@ -24,11 +25,17 @@ namespace Game.Objects.Creatures.Targets
 
         private void Update()
         {
-            if (adjustPosition)
+            if (creatureObject.activeSelf)
+                creatureObject.transform.Rotate(0, 100 * Time.deltaTime, 0);
+
+            if (starObject.activeSelf)
+                starObject.transform.Rotate(0, 100 * Time.deltaTime, 0);
+
+            if (adjustStarPosition)
             {
                 starObject.transform.position = Vector3.MoveTowards(starObject.transform.position, aboveHolePosition, Time.deltaTime * 10);
                 if (starObject.transform.position == aboveHolePosition)
-                    adjustPosition = false;
+                    adjustStarPosition = false;
             }
         }
 
@@ -48,8 +55,8 @@ namespace Game.Objects.Creatures.Targets
 
         private void TurnIntoStar()
         {
-            this.GetComponent<MeshRenderer>().enabled = false;
             this.GetComponent<MeshCollider>().enabled = false;
+            creatureObject.SetActive(false);
 
             starObject.SetActive(true);
         }
@@ -63,7 +70,9 @@ namespace Game.Objects.Creatures.Targets
             {
                 Vector3 translation = (hit.point.y - starObject.transform.position.y + 0.5f) * Vector3.up;
                 aboveHolePosition = starObject.transform.position + translation;
-                adjustPosition = true;
+                adjustStarPosition = true;
+
+                starObject.transform.rotation = hit.transform.rotation;
 
                 if (holePrefab != null)
                     Instantiate(holePrefab, hit.point, hit.transform.rotation, this.transform);
