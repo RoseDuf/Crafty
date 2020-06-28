@@ -438,21 +438,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hit_power: 10
   endPointProjection: {fileID: 1411354756}
-  bouncePointProjection1: {fileID: 1530826655}
+  bouncePointProjection: {fileID: 1530826655}
   horizontalCurve: 0
+  verticalCurve: 0
   angleTheta: 0
   anglePhi: 0
-  x: 0
-  y: 0
-  z: 0
+  Vo: {x: 0, y: 0, z: 0}
   time: 0
+  time2: 0
   groundMaterial: {fileID: 13400000, guid: 396368c766b163d4a8404325370f54ad, type: 2}
-  bounceX1: 0
-  bounceY1: 0
-  bounceZ1: 0
-  bounceX2: 0
-  bounceY2: 0
-  bounceZ2: 0
+  bounceVector: {x: 0, y: 0, z: 0}
 --- !u!1 &633744715
 GameObject:
   m_ObjectHideFlags: 0
