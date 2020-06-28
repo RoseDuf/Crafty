@@ -45,7 +45,7 @@ namespace Game.Cameras
             positionBeforeRoaming = Vector3.zero;
             rotation = Vector2.zero;
 
-            maxDistanceToTarget = target == null ? offset.magnitude : (target.position - offset).magnitude;
+            maxDistanceToTarget = offset.magnitude;
             minDistanceToTarget = 0;
         }
 
@@ -91,13 +91,17 @@ namespace Game.Cameras
 
                 Vector3 desiredPosition = target.position + Quaternion.Euler(mouseMovement.y, mouseMovement.x, 0) * offset;
 
-                // object avoidance
-                if (Physics.Linecast(target.position, desiredPosition, out RaycastHit hit))
+                if (target != null && target.gameObject.layer != LayerMask.NameToLayer("Hole"))
                 {
-                    if (hit.transform.GetComponentInParent<CameraObstruction>() != null)
+                    // object avoidance
+                    if (Physics.Linecast(target.position, desiredPosition, out RaycastHit hit))
                     {
-                        if ((hit.distance * 1e-3f) < maxDistanceToTarget && (hit.distance * 1e-3f) > minDistanceToTarget)
-                            desiredPosition = hit.point;
+                        if (hit.transform.GetComponentInParent<CameraObstruction>() != null)
+                        {
+                            float distanceBias = 1e-3f;
+                            if ((hit.distance * distanceBias) < maxDistanceToTarget && (hit.distance * distanceBias) > minDistanceToTarget)
+                                desiredPosition = hit.point;
+                        }
                     }
                 }
 
