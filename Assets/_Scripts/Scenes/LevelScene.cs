@@ -30,7 +30,7 @@ namespace Game.Scenes
             target.OnCapture -= OnTargetCapture;
 
             if (targets.Count == 1)
-                targets[0].TurnIntoHole();
+                targets[0].SpawnHole();
         }
     }
 }

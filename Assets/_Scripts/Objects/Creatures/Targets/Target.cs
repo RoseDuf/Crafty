@@ -33,24 +33,30 @@ namespace Game.Objects.Creatures.Targets
 
             if (adjustStarPosition)
             {
-                starObject.transform.position = Vector3.MoveTowards(starObject.transform.position, aboveHolePosition, Time.deltaTime * 10);
-                if (starObject.transform.position == aboveHolePosition)
+                this.transform.position = Vector3.MoveTowards(this.transform.position, aboveHolePosition, Time.deltaTime * 10);
+                if (this.transform.position == aboveHolePosition)
                     adjustStarPosition = false;
             }
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.tag.Equals("Player"))
+            if (!IsCaptured && other.tag.Equals("Player"))
                 Capture();
         }
 
         private void Capture()
         {
             IsCaptured = true;
+            starObject.GetComponent<Star>().Claim();
             TurnIntoStar();
-
+            GivePowerupReward();
             OnCapture?.Invoke(this);
+        }
+
+        protected void GivePowerupReward()
+        {
+            //
         }
 
         private void TurnIntoStar()
@@ -61,21 +67,21 @@ namespace Game.Objects.Creatures.Targets
             starObject.SetActive(true);
         }
 
-        public void TurnIntoHole()
+        public void SpawnHole()
         {
             TurnIntoStar();
 
             // do a downwards raycast and create a hole
             if (Physics.Raycast(starObject.transform.position, Vector3.down, out RaycastHit hit))
             {
-                Vector3 translation = (hit.point.y - starObject.transform.position.y + 0.5f) * Vector3.up;
-                aboveHolePosition = starObject.transform.position + translation;
+                Vector3 translation = (hit.point.y - this.transform.position.y + 0.5f) * Vector3.up;
+                aboveHolePosition = this.transform.position + translation;
                 adjustStarPosition = true;
 
-                starObject.transform.rotation = hit.transform.rotation;
+                this.transform.rotation = hit.transform.rotation;
 
                 if (holePrefab != null)
-                    Instantiate(holePrefab, hit.point, hit.transform.rotation, this.transform);
+                    Instantiate(holePrefab, hit.point, hit.transform.rotation, this.transform.parent);
             }
         }
     }
