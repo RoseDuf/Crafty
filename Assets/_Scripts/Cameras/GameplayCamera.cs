@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+using System.Collections;
+
 namespace Game.Cameras
 {
     public class GameplayCamera : MonoBehaviour
@@ -27,6 +29,10 @@ namespace Game.Cameras
         [Min(1f)]
         [Tooltip("How sensitive the camera is to movement")]
         [SerializeField] private float cameraSensitivity = 100f;
+
+        [Header("UI")]
+        [SerializeField] private GameObject ballCamImageObject;
+        [SerializeField] private GameObject freeCamImageObject;
 
         private enum Mode { LockedOnTarget, Roaming }
         private Mode mode;
@@ -65,7 +71,7 @@ namespace Game.Cameras
                     this.transform.position = positionBeforeRoaming;
                     this.transform.LookAt(target);
 
-                    mode = Mode.LockedOnTarget;
+                    ChangeMode(Mode.LockedOnTarget);
                 }
                 else if (mode == Mode.LockedOnTarget)
                 {
@@ -74,7 +80,7 @@ namespace Game.Cameras
                     rotation.x = this.transform.localEulerAngles.y;
                     rotation.y = -this.transform.localEulerAngles.x;
 
-                    mode = Mode.Roaming;
+                    ChangeMode(Mode.Roaming);
                 }
             }
 
@@ -154,6 +160,37 @@ namespace Game.Cameras
                 direction += Vector3.up;
 
             return direction;
+        }
+
+        private void ChangeMode(Mode mode)
+        {
+            this.mode = mode;
+
+            if (mode == Mode.LockedOnTarget)
+            {
+                if (ballCamImageObject != null)
+                {
+                    ballCamImageObject.SetActive(true);
+                    StopCoroutine(CRDisableObject(freeCamImageObject, 1f));
+                    StartCoroutine(CRDisableObject(ballCamImageObject, 1f));
+                }
+            }
+            else if (mode == Mode.Roaming)
+            {
+                if (freeCamImageObject != null)
+                {
+                    freeCamImageObject.SetActive(true);
+                    StopCoroutine(CRDisableObject(ballCamImageObject, 1f));
+                    StartCoroutine(CRDisableObject(freeCamImageObject, 1f));
+                }
+            }
+        }
+
+        private IEnumerator CRDisableObject(GameObject obj, float timeInSeconds)
+        {
+            yield return new WaitForSeconds(timeInSeconds);
+
+            obj.SetActive(false);
         }
     }
 }
