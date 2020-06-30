@@ -38,4 +38,20 @@ public class ProjectionController : MonoBehaviour
         transform.Translate(Vector3.right * input_vector.x * Time.deltaTime * speed);
         transform.Translate(Vector3.forward * input_vector.z * Time.deltaTime * speed);
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.collider.tag != "Floor")
+        {
+            RaycastHit hitInfo;
+            bool obstacleFound = Physics.BoxCast(collision.collider.transform.position + new Vector3(0, 100, 0), new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0, -1, 0), out hitInfo, Quaternion.identity, 200f);
+
+            if (obstacleFound)
+            {
+
+                print("hello");
+                transform.position = hitInfo.transform.position;
+            }
+        }
+    }
 }

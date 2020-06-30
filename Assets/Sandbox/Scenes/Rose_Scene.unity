@@ -444,6 +444,7 @@ MonoBehaviour:
   angleTheta: 0
   anglePhi: 0
   Vo: {x: 0, y: 0, z: 0}
+  initialVelocity: {x: 0, y: 0, z: 0}
   time: 0
   time2: 0
   groundMaterial: {fileID: 13400000, guid: 396368c766b163d4a8404325370f54ad, type: 2}
@@ -510,7 +511,7 @@ GameObject:
   - component: {fileID: 1256593628}
   m_Layer: 0
   m_Name: Plane
-  m_TagString: Untagged
+  m_TagString: Floor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -583,7 +584,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1256593627}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -3.01, z: 0}
+  m_LocalPosition: {x: 0, y: -3, z: 0}
   m_LocalScale: {x: 50, y: 5, z: 50}
   m_Children: []
   m_Father: {fileID: 0}
@@ -601,6 +602,7 @@ GameObject:
   - component: {fileID: 1411354758}
   - component: {fileID: 1411354757}
   - component: {fileID: 1411354760}
+  - component: {fileID: 1411354761}
   m_Layer: 0
   m_Name: Projection End Point
   m_TagString: end point
@@ -682,6 +684,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
+--- !u!65 &1411354761
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1411354756}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1514786086
 GameObject:
   m_ObjectHideFlags: 0
@@ -786,6 +801,7 @@ GameObject:
   - component: {fileID: 1530826658}
   - component: {fileID: 1530826657}
   - component: {fileID: 1530826656}
+  - component: {fileID: 1530826660}
   m_Layer: 0
   m_Name: Projection First Bounce
   m_TagString: end point
@@ -867,3 +883,16 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1530826660
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1530826655}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}

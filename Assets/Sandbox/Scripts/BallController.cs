@@ -17,10 +17,10 @@ namespace Game.BallController
         private Rigidbody rb;
         public float angleTheta; //for x, y, z vector
         public float anglePhi; // for x, z vector
-        public Vector3 Vo;
-        public Vector3 initialVelocity;
-        public float time;
-        public float time2;
+        private Vector3 Vo;
+        private Vector3 initialVelocity;
+        private float time;
+        private float time2;
         private Vector3 vectorFromBallToProjectionPoint;
         private Vector3 vectorFromFirstPointToBouncePoint;
 
@@ -63,16 +63,20 @@ namespace Game.BallController
         private void FixedUpdate()
         {
             FindInitialAngles();
-            FindTotalTime();
-            FindFinalXZForCurve();
-            PredictFirstBouncePosition();
 
-            previousHorizontalCurve = horizontalCurve;
-            previousVerticalCurve = verticalCurve;
-            
+            if (angleTheta >= 0.785398f)
+            {
+                FindTotalTime();
+                FindFinalXZForCurve();
+                PredictFirstBouncePosition();
+
+                previousHorizontalCurve = horizontalCurve;
+                previousVerticalCurve = verticalCurve;
+
+                HandleInput();
+            }
+
             UpdateVectorFromBallToProjectionPoint();
-
-            HandleInput();
         }
 
         // Update is called once per frame
