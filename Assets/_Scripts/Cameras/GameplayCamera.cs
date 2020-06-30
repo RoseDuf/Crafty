@@ -53,10 +53,7 @@ namespace Game.Cameras
 
             maxDistanceToTarget = offset.magnitude;
             minDistanceToTarget = 0;
-        }
 
-        private void Start()
-        {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
