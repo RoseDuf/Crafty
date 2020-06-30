@@ -37,7 +37,6 @@ namespace Tenacious.Scenes
         {
             base.Awake();
             animator = this.GetComponent<Animator>();
-            animator.updateMode = AnimatorUpdateMode.UnscaledTime;
             transitionsObject.SetActive(false);
         }
 
