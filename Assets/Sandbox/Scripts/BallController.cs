@@ -27,13 +27,11 @@ namespace Game.BallController
         private float previousVerticalCurve;
         private float finalZ; // for horizontal curve
         private float finalX; // for horizontal curve
-        private float finalBounceX; // for horizontal curve
-        private float finalBounceZ; // for horizontal curve
 
         private float bounceValueBG; // Ball/ground average
         private float dynamicFrictionValueBG; // Ball/ground average
         [SerializeField] PhysicMaterial groundMaterial;
-        public Vector3 bounceVector;
+        private Vector3 bounceVector;
         private const float DUFRESNE_CONSTANT = 0.7f; // Mystery friction value that we don't seem to have access to anywhere, so I had to find it myself.
 
         bool shoot;
@@ -199,17 +197,19 @@ namespace Game.BallController
             if (!shoot)
             {
                 Vector3 initialVelocity;
+
                 initialVelocity.x = dynamicFrictionValueBG != 0f ? Vo.x * DUFRESNE_CONSTANT : Vo.x;
-                initialVelocity.y = Vo.y * (bounceValueBG);
+                initialVelocity.y = Vo.y * bounceValueBG;
                 initialVelocity.z = dynamicFrictionValueBG != 0f ? Vo.z * DUFRESNE_CONSTANT : Vo.z;
-                time2 = time * (bounceValueBG);
-                
+                time2 = time * bounceValueBG;
+
                 if (verticalCurve != 0.0f)
                 {
-                    Vector3 forceVector = Vector3.Normalize(vectorFromBallToProjectionPoint) * -verticalCurve;
-                    float fraction = (forceVector.magnitude * time) / Vo.magnitude;
-                    initialVelocity.x *= fraction;
-                    initialVelocity.z *= fraction;
+                    initialVelocity.x = dynamicFrictionValueBG != 0f ? (Vo.x - Mathf.Cos(anglePhi) * (verticalCurve * time)) * DUFRESNE_CONSTANT : (Vo.x - Mathf.Cos(anglePhi) * (verticalCurve * time));
+                    initialVelocity.z = dynamicFrictionValueBG != 0f ? (Vo.z - Mathf.Sin(anglePhi) * (verticalCurve * time)) * DUFRESNE_CONSTANT : (Vo.z - Mathf.Sin(anglePhi) * (verticalCurve * time));
+
+                    initialVelocity.x = vectorFromBallToProjectionPoint.x < 0 ? -initialVelocity.x : initialVelocity.x;
+                    initialVelocity.z = vectorFromBallToProjectionPoint.z < 0 ? -initialVelocity.z : initialVelocity.z;
                 }
 
                 bounceVector.x = endPointProjection.transform.position.x + (initialVelocity.x * time2);
@@ -218,8 +218,8 @@ namespace Game.BallController
 
                 if (verticalCurve != 0.0f)
                 {
-                    bounceVector.x = bounceVector.x + (Mathf.Cos(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time + time2, 2));
-                    bounceVector.z = bounceVector.z + (Mathf.Sin(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time + time2, 2));
+                    bounceVector.x = bounceVector.x + (Mathf.Cos(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time2, 2));
+                    bounceVector.z = bounceVector.z + (Mathf.Sin(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time2, 2));
                 }
 
                 bouncePointProjection.transform.position = new Vector3(bounceVector.x, bounceVector.y, bounceVector.z);
