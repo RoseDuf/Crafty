@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-namespace Game.UI
+namespace Game.UI.Components
 {
     [RequireComponent(typeof(UnityEngine.UI.Button))]
     public class Button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler

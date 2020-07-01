@@ -8,9 +8,7 @@ using UnityEngine.EventSystems;
 using Tenacious.Scenes;
 using Tenacious.UI;
 
-using Game.Scenes;
-
-namespace Game.UI
+namespace Game.UI.Menus
 {
     public class PauseMenu : MonoBehaviour
     {
