@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 using Tenacious.Scenes;
 using Tenacious.UI;
 
-namespace Game.UI
+namespace Game.UI.Menus
 {
     public class WelcomeMenu : MonoBehaviour
     {

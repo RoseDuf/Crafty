@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 
-using System.Collections;
 using System.Collections.Generic;
 
 using Game.Objects.Creatures.Targets;
-using Game.UI;
+using Game.UI.Menus;
 
 namespace Game.Scenes
 {
