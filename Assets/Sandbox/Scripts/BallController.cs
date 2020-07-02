@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,10 +20,9 @@ namespace Game.BallController
         public float anglePhi; // for x, z vector
         private Vector3 Vo;
         private Vector3 initialVelocity;
-        private float time;
+        public float time;
         private float time2;
-        private Vector3 vectorFromBallToProjectionPoint;
-        private Vector3 vectorFromFirstPointToBouncePoint;
+        public Vector3 vectorFromBallToProjectionPoint;
 
         private float previousHorizontalCurve;
         private float previousVerticalCurve;
@@ -120,7 +120,13 @@ namespace Game.BallController
                 // Angles are in radians.
 
                 // Angle between the XZ axis and the Y axis.
-                angleTheta = (Mathf.PI / 2) - ((Mathf.Asin((magnitudeOfVectorXZ * -Physics.gravity.y) / Mathf.Pow(hit_power, 2))) / 2);
+                float g = -Physics.gravity.y;
+                float a = Mathf.Pow(magnitudeOfVectorXZ, 2) * g / Mathf.Pow(hit_power, 2);
+                float b = (2 * vectorFromBallToProjectionPoint.y) + a;
+                float c = 2 * magnitudeOfVectorXZ;
+
+                //angleTheta = (Mathf.PI / 2) - ((Mathf.Asin((magnitudeOfVectorXZ * -Physics.gravity.y) / Mathf.Pow(hit_power, 2))) / 2);
+                angleTheta = -(Mathf.Atan( (-c - Mathf.Sqrt(Mathf.Pow(c, 2) - (4 * a * b)) ) / (2 * a)));
 
                 // Angle between the X and Z axis.
                 anglePhi = Mathf.Abs(Mathf.Atan(vectorFromBallToProjectionPoint.z / vectorFromBallToProjectionPoint.x));
@@ -141,7 +147,10 @@ namespace Game.BallController
         {
             if (!shoot)
             {
-                time = (2 / -Physics.gravity.y) * hit_power * Mathf.Sin(angleTheta);
+                //without change in y
+                //time = (2 / -Physics.gravity.y) * hit_power * Mathf.Sin(angleTheta);
+
+                time = (-hit_power * Mathf.Sin(angleTheta) - Mathf.Sqrt(Mathf.Pow(hit_power * Mathf.Sin(angleTheta), 2) - (4 * (vectorFromBallToProjectionPoint.y - transform.position.y) * -Physics.gravity.y/2))) / Physics.gravity.y;
             }
         }
 

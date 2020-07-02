@@ -420,9 +420,9 @@ GameObject:
   - component: {fileID: 518927139}
   - component: {fileID: 518927138}
   - component: {fileID: 518927143}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Ball
-  m_TagString: Untagged
+  m_TagString: Ball
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -536,6 +536,7 @@ MonoBehaviour:
   verticalCurve: 0
   angleTheta: 0
   anglePhi: 0
+  time: 0
   groundMaterial: {fileID: 13400000, guid: 396368c766b163d4a8404325370f54ad, type: 2}
 --- !u!1 &633744715
 GameObject:
@@ -674,7 +675,7 @@ Transform:
   m_GameObject: {fileID: 1256593627}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -3, z: 0}
-  m_LocalScale: {x: 50, y: 5, z: 50}
+  m_LocalScale: {x: 50, y: 4.9885063, z: 50}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
@@ -772,7 +773,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
-  grounded: 0
 --- !u!1 &1514786086
 GameObject:
   m_ObjectHideFlags: 0
@@ -893,11 +893,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1530826655}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44ad62fe67987644da9ec169a94a2170, type: 3}
+  m_Script: {fileID: 11500000, guid: 5a9c985a7d26f6a40add765612a02be0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
-  grounded: 0
 --- !u!33 &1530826657
 MeshFilter:
   m_ObjectHideFlags: 0
