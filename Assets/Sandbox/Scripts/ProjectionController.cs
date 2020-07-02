@@ -8,6 +8,9 @@ public class ProjectionController : MonoBehaviour
 
     private Vector3 input_vector;
 
+    private bool grounded;
+    private Vector3 posCur;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,6 +26,7 @@ public class ProjectionController : MonoBehaviour
     void FixedUpdate()
     {
         MoveProjection();
+        MoveAcrossSurface();
     }
 
     void HandleInput()
@@ -39,19 +43,32 @@ public class ProjectionController : MonoBehaviour
         transform.Translate(Vector3.forward * input_vector.z * Time.deltaTime * speed);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void MoveAcrossSurface()
     {
-        if (collision.collider.tag != "Floor")
+        RaycastHit hit;
+        int layerMask = ~LayerMask.GetMask("Ball");
+
+        if (Physics.BoxCast(transform.position + new Vector3(0, 100f, 0), new Vector3(0.5f, 0.5f, 0.5f), -transform.up, out hit, Quaternion.identity, 200f, layerMask) == true )
         {
-            RaycastHit hitInfo;
-            bool obstacleFound = Physics.BoxCast(collision.collider.transform.position + new Vector3(0, 100, 0), new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0, -1, 0), out hitInfo, Quaternion.identity, 200f);
+            posCur = new Vector3(transform.position.x, hit.point.y + 0.5f, transform.position.z);
 
-            if (obstacleFound)
-            {
+            grounded = true;
 
-                print("hello");
-                transform.position = hitInfo.transform.position;
-            }
+        }
+        else
+        {
+            grounded = false;
+        }
+
+
+        if (grounded == true)
+        {
+            transform.position = posCur;
+        }
+        else
+        {
+            transform.position = transform.position - Vector3.up * 1f;
         }
     }
+
 }

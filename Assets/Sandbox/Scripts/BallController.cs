@@ -256,7 +256,7 @@ namespace Game.BallController
                     }
                 }
 
-                bouncePointProjection.transform.position = new Vector3(bounceVector.x, bounceVector.y, bounceVector.z);
+                bouncePointProjection.transform.position = new Vector3(bounceVector.x, bouncePointProjection.transform.position.y, bounceVector.z);
             }
         }
     }
