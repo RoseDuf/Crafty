@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 
 using System;
+using Game.Objects.Powerups;
 
 namespace Game.Objects.Creatures.Targets
 {
     public class Target : MonoBehaviour
     {
+        [SerializeField] private Powerup powerup;
         [SerializeField] private GameObject creatureObject;
         [SerializeField] private GameObject starObject;
         [SerializeField] private GameObject holePrefab;
@@ -16,6 +18,11 @@ namespace Game.Objects.Creatures.Targets
 
         private bool adjustStarPosition;
         private Vector3 aboveHolePosition;
+
+        Powerup Powerup
+        {
+            get { return powerup; }
+        }
 
         private void Awake()
         {
@@ -42,7 +49,10 @@ namespace Game.Objects.Creatures.Targets
         private void OnTriggerEnter(Collider other)
         {
             if (!IsCaptured && other.tag.Equals("Player"))
+            {
                 Capture();
+                other.GetComponent<Player>().Powerup = powerup;
+            }
         }
 
         private void Capture()
@@ -50,13 +60,7 @@ namespace Game.Objects.Creatures.Targets
             IsCaptured = true;
             starObject.GetComponent<Star>().Claim();
             TurnIntoStar();
-            GivePowerupReward();
             OnCapture?.Invoke(this);
-        }
-
-        protected void GivePowerupReward()
-        {
-            //
         }
 
         private void TurnIntoStar()

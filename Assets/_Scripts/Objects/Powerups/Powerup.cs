@@ -6,6 +6,14 @@ namespace Game.Objects.Powerups
     {
         [SerializeField] private Sprite sprite;
 
-        public Sprite Sprite { get; }
+        public Sprite Sprite 
+        {
+            get { return sprite; }
+        }
+
+        public virtual void Acquire(Player player)
+        {
+
+        }
     }
 }
