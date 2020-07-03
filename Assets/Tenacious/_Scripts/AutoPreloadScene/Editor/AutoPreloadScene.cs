@@ -16,12 +16,12 @@ public static class AutoPreloadScene
     [MenuItem("File/AutoPreloadScene/Load Preload Scene On Play")]
     private static void EnableLoadPreloadSceneOnPlay()
     {
-        string preloadScene = EditorUtility.OpenFilePanel("Select Preload Scene", Application.dataPath, "unity");
-        preloadScene = preloadScene.Replace(Application.dataPath, "Assets");
+        string preloadSceneName = EditorUtility.OpenFilePanel("Select Preload Scene", Application.dataPath, "unity");
+        preloadSceneName = preloadSceneName.Replace(Application.dataPath, "Assets");
 
-        if (!string.IsNullOrEmpty(preloadScene))
+        if (!string.IsNullOrEmpty(preloadSceneName))
         {
-            PreloadScene = preloadScene;
+            PreloadScenePath = preloadSceneName;
             LoadPreloadSceneOnPlay = true;
         }
     }
@@ -47,18 +47,19 @@ public static class AutoPreloadScene
             if (EditorApplication.isPlayingOrWillChangePlaymode)
             {
                 // User pressed play
+                PreviousActiveScenePath = SceneManager.GetActiveScene().path;
 
                 // autoload preload scene but make sure user saves changes
                 if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
                 {
                     try
                     {
-                        Scene scene = EditorSceneManager.OpenScene(PreloadScene, OpenSceneMode.Additive);
-                        SceneManager.SetActiveScene(scene);
+                        Scene preloadScene = EditorSceneManager.OpenScene(PreloadScenePath, OpenSceneMode.Additive);
+                        SceneManager.SetActiveScene(preloadScene);
                     }
                     catch
                     {
-                        Debug.LogError("Preload Scene not found: " + PreloadScene);
+                        Debug.LogError("Preload Scene not found: " + PreloadScenePath);
                         EditorApplication.isPlaying = false;
                     }
                 }
@@ -71,15 +72,26 @@ public static class AutoPreloadScene
 
             if (!EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                // we were about to play, but user pressed stop
+                // we were about to play, but user pressed stop or canceled play
+                SceneManager.SetActiveScene(SceneManager.GetSceneByPath(PreviousActiveScenePath));
             }
+        }
+
+        if (state == PlayModeStateChange.EnteredPlayMode)
+        {
+            SceneManager.SetActiveScene(SceneManager.GetSceneByPath(PreviousActiveScenePath));
+        }
+
+        if (state == PlayModeStateChange.ExitingPlayMode)
+        {
+            SceneManager.SetActiveScene(SceneManager.GetSceneByPath(PreviousActiveScenePath));
         }
     }
 
     // These properties will be set as editor preferences
     public const string EDITOR_PREFERENCE_LOAD_PRELOAD_SCENE_ON_PLAY = "AutoPreloadScene.LoadPreloadSceneOnPlay";
     public const string EDITOR_PREFERENCE_PRELOAD_SCENE = "AutoPreloadScene.PreloadScene";
-    public const string EDITOR_PREFERENCE_PREVIOUS_SCENE = "AutoPreloadScene.PreviousScene";
+    public const string EDITOR_PREFERENCE_PREVIOUS_ACTIVE_SCENE = "AutoPreloadScene.PreviousActiveScene";
 
     private static bool LoadPreloadSceneOnPlay
     {
@@ -87,9 +99,15 @@ public static class AutoPreloadScene
         set { EditorPrefs.SetBool(EDITOR_PREFERENCE_LOAD_PRELOAD_SCENE_ON_PLAY, value); }
     }
 
-    private static string PreloadScene
+    private static string PreloadScenePath
     {
-        get { return EditorPrefs.GetString(EDITOR_PREFERENCE_PRELOAD_SCENE, "Main.unity"); }
+        get { return EditorPrefs.GetString(EDITOR_PREFERENCE_PRELOAD_SCENE, "Preload.unity"); }
         set { EditorPrefs.SetString(EDITOR_PREFERENCE_PRELOAD_SCENE, value); }
+    }
+
+    private static string PreviousActiveScenePath
+    {
+        get { return EditorPrefs.GetString(EDITOR_PREFERENCE_PREVIOUS_ACTIVE_SCENE, "Preload.unity"); }
+        set { EditorPrefs.SetString(EDITOR_PREFERENCE_PREVIOUS_ACTIVE_SCENE, value); }
     }
 }
