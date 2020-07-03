@@ -33,8 +33,17 @@ namespace Tenacious.Scenes
         protected override void Awake()
         {
             base.Awake();
+
             animator = this.GetComponent<Animator>();
             transitionsObject.SetActive(false);
+
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
+        {
+            if (scene.name.Equals(loadingSceneName))
+                transitionsObject.SetActive(false);
         }
 
         public void LoadScene(string sceneName, ETransitionType type = ETransitionType.None, OnBeforeSceneLoadCallback onBeforeSceneLoadCallback = null)
@@ -108,8 +117,6 @@ namespace Tenacious.Scenes
         {
             yield return null; // continue running on the next frame
 
-            transitionsObject.SetActive(false);
-
             AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName);
             asyncOperation.allowSceneActivation = false;
 
@@ -121,12 +128,13 @@ namespace Tenacious.Scenes
 
                 // activate the new scene when progress is complete
                 if (progress >= 1f)
+                {
+                    transitionsObject.SetActive(true);
                     asyncOperation.allowSceneActivation = true;
+                }
 
                 yield return null;
             }
-
-            transitionsObject.SetActive(true);
 
             OnLoadProgressUpdate = null;
             TransitionPhase = ETransitionPhase.In;
