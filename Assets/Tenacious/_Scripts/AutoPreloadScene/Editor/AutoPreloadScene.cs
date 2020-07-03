@@ -53,7 +53,8 @@ public static class AutoPreloadScene
                 {
                     try
                     {
-                        EditorSceneManager.OpenScene(PreloadScene, OpenSceneMode.Additive);
+                        Scene scene = EditorSceneManager.OpenScene(PreloadScene, OpenSceneMode.Additive);
+                        SceneManager.SetActiveScene(scene);
                     }
                     catch
                     {
