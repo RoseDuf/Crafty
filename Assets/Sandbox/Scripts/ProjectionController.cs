@@ -10,6 +10,7 @@ public class ProjectionController : MonoBehaviour
 
     private bool grounded;
     private Vector3 posCur;
+    public float angle { get; set; }
 
     // Start is called before the first frame update
     void Start()
@@ -51,6 +52,7 @@ public class ProjectionController : MonoBehaviour
         if (Physics.BoxCast(transform.position + new Vector3(0, 100f, 0), new Vector3(0.5f, 0.5f, 0.5f), -transform.up, out hit, Quaternion.identity, 200f, layerMask) == true )
         {
             posCur = new Vector3(transform.position.x, hit.point.y + 0.5f, transform.position.z);
+            angle = Mathf.Acos(hit.normal.y);
 
             grounded = true;
 
