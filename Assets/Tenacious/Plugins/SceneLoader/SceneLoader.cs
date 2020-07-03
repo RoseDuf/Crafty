@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
+using System;
 using System.Collections;
 
 namespace Tenacious.Scenes
@@ -9,11 +10,6 @@ namespace Tenacious.Scenes
     {
         [SerializeField] private string loadingSceneName = "Loading";
         [SerializeField] private GameObject transitionsObject;
-
-        /// <summary>
-        /// This is set when LoadingScene is loaded. See <see cref="LoadingScene.Awake()" />
-        /// </summary>
-        [HideInInspector] public RectTransform loadingBar;
 
         public enum ETransitionType
         {
@@ -25,6 +21,7 @@ namespace Tenacious.Scenes
         public enum ETransitionPhase { None, Out, In }
 
         public delegate void OnBeforeSceneLoadCallback();
+        public event Action<float> OnLoadProgressUpdate;
 
         private Animator animator;
         private string sceneToLoad;
@@ -36,8 +33,17 @@ namespace Tenacious.Scenes
         protected override void Awake()
         {
             base.Awake();
+
             animator = this.GetComponent<Animator>();
             transitionsObject.SetActive(false);
+
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
+        {
+            if (scene.name.Equals(loadingSceneName))
+                transitionsObject.SetActive(false);
         }
 
         public void LoadScene(string sceneName, ETransitionType type = ETransitionType.None, OnBeforeSceneLoadCallback onBeforeSceneLoadCallback = null)
@@ -93,7 +99,7 @@ namespace Tenacious.Scenes
                 if (value != ETransitionType.Random)
                     animator?.SetInteger("TransitionType", (int)value);
                 else
-                    animator?.SetInteger("TransitionType", Random.Range((int)ETransitionType.None, (int)ETransitionType.Random));
+                    animator?.SetInteger("TransitionType", UnityEngine.Random.Range((int)ETransitionType.None, (int)ETransitionType.Random));
             }
         }
 
@@ -114,29 +120,23 @@ namespace Tenacious.Scenes
             AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName);
             asyncOperation.allowSceneActivation = false;
 
-            RectTransform progressTransform = null;
-            if (loadingBar != null)
-            {
-                progressTransform = ((RectTransform)loadingBar.GetChild(0));
-                progressTransform.sizeDelta = new Vector2(0, progressTransform.sizeDelta.y);
-            }
-
             while (!asyncOperation.isDone)
             {
                 float progress = asyncOperation.progress + 0.1f;
 
-                if (progressTransform != null)
-                {
-                    float barLength = loadingBar.rect.width;
-                    progressTransform.sizeDelta = new Vector2(progress * barLength, progressTransform.sizeDelta.y);
-                }
+                OnLoadProgressUpdate?.Invoke(progress);
 
+                // activate the new scene when progress is complete
                 if (progress >= 1f)
-                    asyncOperation.allowSceneActivation = true; // activate the new scene
+                {
+                    transitionsObject.SetActive(true);
+                    asyncOperation.allowSceneActivation = true;
+                }
 
                 yield return null;
             }
 
+            OnLoadProgressUpdate = null;
             TransitionPhase = ETransitionPhase.In;
         }
     }
