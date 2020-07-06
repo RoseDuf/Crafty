@@ -18,11 +18,11 @@ namespace Game.BallController
         private Rigidbody rb;
         public float angleTheta; //for x, y, z vector
         public float anglePhi; // for x, z vector
-        private Vector3 Vo;
+        public Vector3 Vo;
         private Vector3 VoBounce;
         private float time;
         private float time2;
-        private Vector3 vectorFromBallToProjectionPoint;
+        public Vector3 vectorFromBallToProjectionPoint;
 
         private float previousHorizontalCurve;
         private float previousVerticalCurve;
@@ -33,10 +33,10 @@ namespace Game.BallController
         private float dynamicFrictionValueBG; // Ball/ground average for bounce
         [SerializeField] PhysicMaterial groundMaterial;
         private Vector3 bounceCoordinates;
-        private const float DUFRESNE_CONSTANT = 0.65f; // Mystery friction value that we don't seem to have access to anywhere, so I had to find it myself.
+        private const float DUFRESNE_CONSTANT = 0.75f; // Mystery friction value that we don't seem to have access to anywhere, so I had to find it myself.
 
         // Shooting options
-        enum ShootingOptions { Straight, Lob};
+        enum ShootingOptions { Straight, Lob };
         private ShootingOptions option;
 
         float timer;
@@ -79,7 +79,7 @@ namespace Game.BallController
                 previousHorizontalCurve = horizontalCurve;
                 previousVerticalCurve = verticalCurve;
 
-                HandleInput();
+                HandleExteriorForces();
             }
 
             UpdateVectorFromBallToProjectionPoint();
@@ -96,29 +96,28 @@ namespace Game.BallController
             {
                 bouncePointProjection.GetComponent<MeshRenderer>().enabled = true;
             }
+
+            if (angleTheta >= 0.785398f)
+            {
+                HandleInput();
+            }
         }
 
         void HandleInput()
         {
             FindInitialVector();
 
-            if (Input.GetButtonDown("OptionLob") && !shoot && option != ShootingOptions.Lob)
+            if (Input.GetButtonDown("Options") && !shoot)
             {
-                option = ShootingOptions.Lob;
-                bouncePointProjection.GetComponent<MeshRenderer>().enabled = true;
-            }
-
-            if (Input.GetButtonDown("OptionStraight") && !shoot && option != ShootingOptions.Straight)
-            {
-                option = ShootingOptions.Straight;
-                bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
+                option = option != ShootingOptions.Lob ? ShootingOptions.Lob : ShootingOptions.Straight;
+                bouncePointProjection.GetComponent<MeshRenderer>().enabled = !bouncePointProjection.GetComponent<MeshRenderer>().enabled;
             }
 
             if (Input.GetButtonDown("Lob") && !shoot)
             {
                 option = ShootingOptions.Lob;
                 FindInitialVector();
-                shoot = true; 
+                shoot = true;
                 rb.velocity = new Vector3(Vo.x, Vo.y, Vo.z);
             }
 
@@ -129,12 +128,15 @@ namespace Game.BallController
                 shoot = true;
                 rb.velocity = new Vector3(Vo.x, 0.0f, Vo.z);
             }
-            
+        }
+
+        void HandleExteriorForces()
+        {
             if (shoot && horizontalCurve != 0)
             {
                 timer += Time.deltaTime;
 
-                if (timer <= time * 0.8f)
+                if (timer <= time + time2)
                 {
                     rb.AddForce(Vector3.Normalize(Vector3.Cross(vectorFromBallToProjectionPoint, Vector3.up)) * -horizontalCurve, ForceMode.Acceleration);
                 }
@@ -144,7 +146,7 @@ namespace Game.BallController
             {
                 timer += Time.deltaTime;
 
-                if (timer <= time * 0.8f)
+                if (timer <= time + time2)
                 {
                     rb.AddForce(Vector3.Normalize(vectorFromBallToProjectionPoint) * -verticalCurve, ForceMode.Acceleration);
                 }
@@ -166,7 +168,7 @@ namespace Game.BallController
                 float c = 2 * magnitudeOfVectorXZ;
 
                 //angleTheta = (Mathf.PI / 2) - ((Mathf.Asin((magnitudeOfVectorXZ * -Physics.gravity.y) / Mathf.Pow(hit_power, 2))) / 2);
-                angleTheta = -(Mathf.Atan( (-c - Mathf.Sqrt(Mathf.Pow(c, 2) - (4 * a * b)) ) / (2 * a)));
+                angleTheta = -(Mathf.Atan((-c - Mathf.Sqrt(Mathf.Pow(c, 2) - (4 * a * b))) / (2 * a)));
 
                 // Angle between the X and Z axis.
                 anglePhi = Mathf.Abs(Mathf.Atan(vectorFromBallToProjectionPoint.z / vectorFromBallToProjectionPoint.x));
@@ -193,19 +195,16 @@ namespace Game.BallController
             Vo.x = vectorFromBallToProjectionPoint.x < 0 ? -Vo.x : Vo.x;
             Vo.z = vectorFromBallToProjectionPoint.z < 0 ? -Vo.z : Vo.z;
 
-            float frictionValue;
-            
             if (option == ShootingOptions.Straight)
             {
-                frictionValue = DUFRESNE_CONSTANT;
+                Vo.x *= DUFRESNE_CONSTANT;
+                Vo.z *= DUFRESNE_CONSTANT;
             }
             else
             {
-                frictionValue = 1f;
+                Vo.x /= 1f;
+                Vo.z /= 1f;
             }
-
-            Vo.x /= frictionValue;
-            Vo.z /= frictionValue;
         }
 
         void FindTotalTime()
@@ -215,52 +214,53 @@ namespace Game.BallController
                 //without change in y
                 //time = (2 / -Physics.gravity.y) * hit_power * Mathf.Sin(angleTheta);
 
-                time = (-hit_power * Mathf.Sin(angleTheta) - Mathf.Sqrt(Mathf.Pow(hit_power * Mathf.Sin(angleTheta), 2) - (4 * (vectorFromBallToProjectionPoint.y - transform.position.y) * -Physics.gravity.y/2))) / Physics.gravity.y;
+                time = (-hit_power * Mathf.Sin(angleTheta) - Mathf.Sqrt(Mathf.Pow(hit_power * Mathf.Sin(angleTheta), 2) - (4 * (vectorFromBallToProjectionPoint.y - transform.position.y) * -Physics.gravity.y / 2))) / Physics.gravity.y;
             }
         }
 
         void FindFinalXZForCurve()
         {
-            if (horizontalCurve != 0.0f)
+            if (!shoot)
             {
-                // Need this for when vectorFromBallToProjectionPoint is diagonal.
-                float hypothenuse = (((-horizontalCurve / rb.mass) / 2) * Mathf.Pow(time, 2));
-
                 finalX = vectorFromBallToProjectionPoint.x;
-                // Adjust to axis.
-                finalX = vectorFromBallToProjectionPoint.z < 0 ? finalX + (hypothenuse * Mathf.Sin(anglePhi)) : finalX - (hypothenuse * Mathf.Sin(anglePhi));
-
                 finalZ = vectorFromBallToProjectionPoint.z;
-                // Adjust to axis.
-                finalZ = vectorFromBallToProjectionPoint.x < 0 ? finalZ - (hypothenuse * Mathf.Cos(anglePhi)) : finalZ + (hypothenuse * Mathf.Cos(anglePhi));
-            }
 
-            else if (verticalCurve != 0.0f)
-            {
-                finalX = (Vo.x * time);
-                finalZ = (Vo.z * time);
-
-                finalX = vectorFromBallToProjectionPoint.x < 0 ? finalX - (Mathf.Cos(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time, 2)) : finalX + (Mathf.Cos(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time, 2));
-                finalZ = vectorFromBallToProjectionPoint.z < 0 ? finalZ - (Mathf.Sin(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time, 2)) : finalZ + (Mathf.Sin(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time, 2));
-            }
-
-            else
-            {
-                if ((horizontalCurve == 0.0f && previousHorizontalCurve != 0.0f) || (verticalCurve == 0.0f && previousVerticalCurve != 0.0f))
+                if (verticalCurve != 0.0f)
                 {
-                    finalX = vectorFromBallToProjectionPoint.x;
-                    finalZ = vectorFromBallToProjectionPoint.z;
+                    finalX = vectorFromBallToProjectionPoint.x < 0 ? transform.position.x - (Vo.x * time) - (Mathf.Cos(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time, 2)) : transform.position.x + (Vo.x * time) + (Mathf.Cos(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time, 2));
+                    finalZ = vectorFromBallToProjectionPoint.z < 0 ? transform.position.z - (Vo.z * time) - (Mathf.Sin(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time, 2)) : transform.position.z + (Vo.z * time) + (Mathf.Sin(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time, 2));
                 }
-                else
+
+                if (horizontalCurve != 0.0f && option == ShootingOptions.Straight)
                 {
-                    finalX = endPointProjection.transform.position.x;
-                    finalZ = endPointProjection.transform.position.z;
+                    // Need this for when vectorFromBallToProjectionPoint is diagonal.
+                    float hypothenuse = (((-horizontalCurve / rb.mass) / 2) * Mathf.Pow(time, 2));
+
+                    // Adjust to axis.
+                    finalX = vectorFromBallToProjectionPoint.z < 0 ? finalX + (hypothenuse * Mathf.Sin(anglePhi)) : finalX - (hypothenuse * Mathf.Sin(anglePhi));
+
+                    // Adjust to axis.
+                    finalZ = vectorFromBallToProjectionPoint.x < 0 ? finalZ - (hypothenuse * Mathf.Cos(anglePhi)) : finalZ + (hypothenuse * Mathf.Cos(anglePhi));
                 }
+
+                if (verticalCurve == 0.0f && horizontalCurve == 0.0f)
+                {
+                    if ((horizontalCurve == 0.0f && previousHorizontalCurve != 0.0f) || (verticalCurve == 0.0f && previousVerticalCurve != 0.0f))
+                    {
+                        finalX = vectorFromBallToProjectionPoint.x;
+                        finalZ = vectorFromBallToProjectionPoint.z;
+                    }
+                    else
+                    {
+                        finalX = endPointProjection.transform.position.x;
+                        finalZ = endPointProjection.transform.position.z;
+                    }
+                }
+
+                CorrectProjectionPosition();
             }
-        
-            CorrectProjectionPosition();
         }
-        
+
         void UpdateVectorFromBallToProjectionPoint()
         {
             if (horizontalCurve == 0.0f && verticalCurve == 0.0f)
@@ -268,7 +268,7 @@ namespace Game.BallController
                 vectorFromBallToProjectionPoint = endPointProjection.transform.position - transform.position;
             }
         }
-        
+
         void CorrectProjectionPosition()
         {
             endPointProjection.transform.position = new Vector3(finalX, endPointProjection.transform.position.y, finalZ);
@@ -311,11 +311,11 @@ namespace Game.BallController
                     {
                         VoBounce.z = dynamicFrictionValueBG != 0f ? (Vo.z - Mathf.Sin(anglePhi) * (verticalCurve * time)) * DUFRESNE_CONSTANT : (Vo.z - Mathf.Sin(anglePhi) * (verticalCurve * time));
                     }
-                    
+
                 }
 
                 bounceCoordinates.x = endPointProjection.transform.position.x + (VoBounce.x * time2);
-                bounceCoordinates.y = endPointProjection.transform.position.y + (VoBounce.y * time2) - (-Physics.gravity.y/2 * Mathf.Pow(time2,2));
+                bounceCoordinates.y = endPointProjection.transform.position.y + (VoBounce.y * time2) - (-Physics.gravity.y / 2 * Mathf.Pow(time2, 2));
                 bounceCoordinates.z = endPointProjection.transform.position.z + (VoBounce.z * time2);
 
                 if (verticalCurve != 0.0f)

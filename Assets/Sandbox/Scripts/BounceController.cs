@@ -24,7 +24,6 @@ public class BounceController : MonoBehaviour
             angle = Mathf.Acos(hit.normal.y);
 
             grounded = true;
-
         }
         else
         {

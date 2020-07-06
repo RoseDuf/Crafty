@@ -55,7 +55,6 @@ public class ProjectionController : MonoBehaviour
             angle = Mathf.Acos(hit.normal.y);
 
             grounded = true;
-
         }
         else
         {
