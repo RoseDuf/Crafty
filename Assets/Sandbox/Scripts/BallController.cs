@@ -10,8 +10,10 @@ namespace Game.BallController
     {
 
         [SerializeField] float hit_power;
-        [SerializeField] GameObject endPointProjection;
-        [SerializeField] GameObject bouncePointProjection;
+        [SerializeField] GameObject endPointProjectionBall;
+        [SerializeField] GameObject bouncePointProjectionBall;
+        private GameObject endPointProjection;
+        private GameObject bouncePointProjection;
         [SerializeField] float horizontalCurve; //temporaty, will get this from meters later
         [SerializeField] float verticalCurve; //temporaty, will get this from meters later
 
@@ -52,6 +54,9 @@ namespace Game.BallController
 
         private void Awake()
         {
+            endPointProjection = Instantiate(endPointProjectionBall, new Vector3(0, 0, 0), Quaternion.identity);
+            bouncePointProjection = Instantiate(bouncePointProjectionBall, new Vector3(0, 0, 0), Quaternion.identity);
+
             rb = GetComponent<Rigidbody>();
             vectorFromBallToProjectionPoint = endPointProjection.transform.position;
 
@@ -109,13 +114,14 @@ namespace Game.BallController
                 HandleExteriorForces();
             }
 
+            UpdateNewProjectionCoordinates();
             UpdateVectorFromBallToProjectionPoint();
         }
 
         // Update is called once per frame
         void Update()
         {
-            if (Double.IsNaN(angleTheta))
+            if (Double.IsNaN(angleTheta) || shoot)
             {
                 endPointProjection.GetComponent<MeshRenderer>().enabled = false;
                 if (option == ShootingOptions.Lob)
@@ -183,23 +189,20 @@ namespace Game.BallController
 
         void HandleExteriorForces()
         {
-            if (shoot && horizontalCurve != 0)
+            if (shoot)
             {
                 timer += Time.deltaTime;
 
                 if (timer <= time + time2)
                 {
-                    rb.AddForce(Vector3.Normalize(Vector3.Cross(vectorFromBallToProjectionPoint, Vector3.up)) * -horizontalCurve, ForceMode.Acceleration);
-                }
-            }
-
-            if (shoot && verticalCurve != 0)
-            {
-                timer += Time.deltaTime;
-
-                if (timer <= time + time2)
-                {
-                    rb.AddForce(Vector3.Normalize(vectorFromBallToProjectionPoint) * -verticalCurve, ForceMode.Acceleration);
+                    if (horizontalCurve != 0)
+                    {
+                        rb.AddForce(Vector3.Normalize(Vector3.Cross(vectorFromBallToProjectionPoint, Vector3.up)) * -horizontalCurve, ForceMode.Acceleration);
+                    }
+                    if (verticalCurve != 0)
+                    {
+                        rb.AddForce(Vector3.Normalize(vectorFromBallToProjectionPoint) * -verticalCurve, ForceMode.Acceleration);
+                    }
                 }
             }
         }
@@ -388,6 +391,17 @@ namespace Game.BallController
                 }
 
                 bouncePointProjection.transform.position = new Vector3(bounceCoordinates.x, bouncePointProjection.transform.position.y, bounceCoordinates.z);
+            }
+        }
+
+        void UpdateNewProjectionCoordinates()
+        {
+            if (rb.velocity.magnitude == 0f && shoot)
+            {
+                endPointProjection.transform.position = transform.position;
+                bouncePointProjection.transform.position = transform.position;
+                shoot = false;
+                timer = 0f;
             }
         }
 
