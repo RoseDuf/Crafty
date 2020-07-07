@@ -16,13 +16,13 @@ namespace Game.BallController
         [SerializeField] float verticalCurve; //temporaty, will get this from meters later
 
         private Rigidbody rb;
-        public float angleTheta; //for x, y, z vector
-        public float anglePhi; // for x, z vector
-        public Vector3 Vo;
+        private float angleTheta; //for x, y, z vector
+        private float anglePhi; // for x, z vector
+        private Vector3 Vo;
         private Vector3 VoBounce;
         private float time;
         private float time2;
-        public Vector3 vectorFromBallToProjectionPoint;
+        private Vector3 vectorFromBallToProjectionPoint;
 
         private float previousHorizontalCurve;
         private float previousVerticalCurve;
@@ -33,11 +33,18 @@ namespace Game.BallController
         private float dynamicFrictionValueBG; // Ball/ground average for bounce
         [SerializeField] PhysicMaterial groundMaterial;
         private Vector3 bounceCoordinates;
-        private const float DUFRESNE_CONSTANT = 0.75f; // Mystery friction value that we don't seem to have access to anywhere, so I had to find it myself.
+        private const float DUFRESNE_CONSTANT = 0.67f; // Mystery friction value that we don't seem to have access to anywhere, so I had to find it myself.
 
         // Shooting options
         enum ShootingOptions { Straight, Lob };
         private ShootingOptions option;
+
+        [SerializeField] GameObject pointProjectionBall;
+        [SerializeField] GameObject bounceProjectionBall;
+        GameObject[] pointProjectionArrow;
+        GameObject[] bounceProjectionArrow;
+        private int numberOfBallsForPoint;
+        private int numberOfBallsForBounce;
 
         float timer;
 
@@ -47,11 +54,7 @@ namespace Game.BallController
         {
             rb = GetComponent<Rigidbody>();
             vectorFromBallToProjectionPoint = endPointProjection.transform.position;
-        }
 
-        // Start is called before the first frame update
-        void Start()
-        {
             float bounceValueBall = GetComponent<Collider>().material.bounciness;
             float dynamicFrictionValueBall = GetComponent<Collider>().material.dynamicFriction;
             float bounceValueGround = groundMaterial.bounciness;
@@ -60,10 +63,29 @@ namespace Game.BallController
             // Average bounce and friction values
             bounceValueBG = (bounceValueBall + bounceValueGround) / 2;
             dynamicFrictionValueBG = (dynamicFrictionValueBall + dynamicFrictionValueGround) / 2;
+        }
 
+        // Start is called before the first frame update
+        void Start()
+        {
             shoot = false;
-
             timer = 0.0f;
+
+            int arrowBalls = 0;
+            for (float i = 0f; i < time; i += time/8f)
+            {
+                pointProjectionArrow[arrowBalls] = Instantiate(pointProjectionBall, new Vector3(0, 0, 0), Quaternion.identity);
+            }
+
+            numberOfBallsForPoint = arrowBalls;
+
+            arrowBalls = 0;
+            for (float i = 0f; i < time2; i += time / 4f)
+            {
+                bounceProjectionArrow[arrowBalls] = Instantiate(pointProjectionBall, new Vector3(0, 0, 0), Quaternion.identity);
+            }
+
+            numberOfBallsForBounce = arrowBalls;
         }
 
         private void FixedUpdate()
@@ -74,6 +96,11 @@ namespace Game.BallController
             {
                 FindTotalTime();
                 FindFinalXZForCurve();
+
+                if (option == ShootingOptions.Lob)
+                {
+
+                }
                 PredictFirstBouncePosition();
 
                 previousHorizontalCurve = horizontalCurve;
@@ -88,13 +115,37 @@ namespace Game.BallController
         // Update is called once per frame
         void Update()
         {
-            if (option == ShootingOptions.Straight)
+            if (Double.IsNaN(angleTheta))
             {
-                bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
+                endPointProjection.GetComponent<MeshRenderer>().enabled = false;
+                if (option == ShootingOptions.Lob)
+                {
+                    bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
+                }
             }
             else
             {
-                bouncePointProjection.GetComponent<MeshRenderer>().enabled = true;
+                endPointProjection.GetComponent<MeshRenderer>().enabled = true;
+                if (option == ShootingOptions.Lob)
+                {
+                    bouncePointProjection.GetComponent<MeshRenderer>().enabled = true;
+                }
+
+                if (option == ShootingOptions.Straight)
+                {
+                    bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
+                }
+                else
+                {
+                    if (endPointProjection.GetComponent<ProjectionController>().angle != 0.0f)
+                    {
+                        bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
+                    }
+                    else
+                    {
+                        bouncePointProjection.GetComponent<MeshRenderer>().enabled = true;
+                    }
+                }
             }
 
             if (angleTheta >= 0.785398f)
@@ -172,17 +223,6 @@ namespace Game.BallController
 
                 // Angle between the X and Z axis.
                 anglePhi = Mathf.Abs(Mathf.Atan(vectorFromBallToProjectionPoint.z / vectorFromBallToProjectionPoint.x));
-
-                if (Double.IsNaN(angleTheta))
-                {
-                    endPointProjection.GetComponent<MeshRenderer>().enabled = false;
-                    bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
-                }
-                else
-                {
-                    endPointProjection.GetComponent<MeshRenderer>().enabled = true;
-                    bouncePointProjection.GetComponent<MeshRenderer>().enabled = true;
-                }
             }
         }
 
@@ -197,8 +237,8 @@ namespace Game.BallController
 
             if (option == ShootingOptions.Straight)
             {
-                Vo.x *= DUFRESNE_CONSTANT;
-                Vo.z *= DUFRESNE_CONSTANT;
+                Vo.x /= DUFRESNE_CONSTANT;
+                Vo.z /= DUFRESNE_CONSTANT;
             }
             else
             {
@@ -225,10 +265,27 @@ namespace Game.BallController
                 finalX = vectorFromBallToProjectionPoint.x;
                 finalZ = vectorFromBallToProjectionPoint.z;
 
+                float frictionForce = dynamicFrictionValueBG != 0.0f && option == ShootingOptions.Straight ? frictionForce = 1f + DUFRESNE_CONSTANT : frictionForce = 0f;
+
                 if (verticalCurve != 0.0f)
                 {
-                    finalX = vectorFromBallToProjectionPoint.x < 0 ? transform.position.x - (Vo.x * time) - (Mathf.Cos(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time, 2)) : transform.position.x + (Vo.x * time) + (Mathf.Cos(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time, 2));
-                    finalZ = vectorFromBallToProjectionPoint.z < 0 ? transform.position.z - (Vo.z * time) - (Mathf.Sin(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time, 2)) : transform.position.z + (Vo.z * time) + (Mathf.Sin(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(time, 2));
+                    if (vectorFromBallToProjectionPoint.x < 0)
+                    {
+                        finalX = transform.position.x + (Vo.x * time) - (Mathf.Cos(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(time, 2));
+                    }
+                    else
+                    {
+                        finalX = transform.position.x + (Vo.x * time) + (Mathf.Cos(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(time, 2));
+                    }
+
+                    if (vectorFromBallToProjectionPoint.z < 0)
+                    {
+                        finalZ = transform.position.z + (Vo.z * time) - (Mathf.Sin(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(time, 2));
+                    }
+                    else
+                    {
+                        finalZ = transform.position.z + (Vo.z * time) + (Mathf.Sin(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(time, 2));
+                    }
                 }
 
                 if (horizontalCurve != 0.0f && option == ShootingOptions.Straight)
@@ -276,15 +333,6 @@ namespace Game.BallController
 
         void PredictFirstBouncePosition()
         {
-            if (endPointProjection.GetComponent<ProjectionController>().angle != 0.0f)
-            {
-                bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
-            }
-            else
-            {
-                bouncePointProjection.GetComponent<MeshRenderer>().enabled = true;
-            }
-
             if (!shoot)
             {
                 VoBounce.x = dynamicFrictionValueBG != 0f ? Vo.x * DUFRESNE_CONSTANT : Vo.x;
@@ -341,6 +389,11 @@ namespace Game.BallController
 
                 bouncePointProjection.transform.position = new Vector3(bounceCoordinates.x, bouncePointProjection.transform.position.y, bounceCoordinates.z);
             }
+        }
+
+        void DrawArrow()
+        {
+            //for (int arrowBalls = 0; arrowBalls <= )
         }
     }
 }
