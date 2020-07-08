@@ -18,13 +18,13 @@ namespace Game.BallController
         [SerializeField] float verticalCurve; //temporaty, will get this from meters later
 
         private Rigidbody rb;
-        private float angleTheta; //for x, y, z vector
-        private float anglePhi; // for x, z vector
-        private Vector3 Vo;
+        public float angleTheta; //for x, y, z vector
+        public float anglePhi; // for x, z vector
+        public Vector3 Vo;
         private Vector3 VoBounce;
-        private float time;
+        public float time;
         private float time2;
-        private Vector3 vectorFromBallToProjectionPoint;
+        public Vector3 vectorFromBallToProjectionPoint;
 
         private float previousHorizontalCurve;
         private float previousVerticalCurve;
@@ -43,10 +43,10 @@ namespace Game.BallController
 
         [SerializeField] GameObject pointProjectionBall;
         [SerializeField] GameObject bounceProjectionBall;
-        GameObject[] pointProjectionArrow;
-        GameObject[] bounceProjectionArrow;
-        private int numberOfBallsForPoint;
-        private int numberOfBallsForBounce;
+        private List<GameObject> pointProjectionArrow;
+        private List<GameObject> bounceProjectionArrow;
+        [SerializeField] private int numberOfBallsForPoint;
+        [SerializeField] private int numberOfBallsForBounce;
 
         float timer;
 
@@ -54,6 +54,8 @@ namespace Game.BallController
 
         private void Awake()
         {
+            option = ShootingOptions.Straight;
+
             endPointProjection = Instantiate(endPointProjectionBall, new Vector3(0, 0, 0), Quaternion.identity);
             bouncePointProjection = Instantiate(bouncePointProjectionBall, new Vector3(0, 0, 0), Quaternion.identity);
 
@@ -76,88 +78,66 @@ namespace Game.BallController
             shoot = false;
             timer = 0.0f;
 
-            int arrowBalls = 0;
-            for (float i = 0f; i < time; i += time/8f)
+            FindInitialAngles();
+            FindTotalTime();
+
+            if (angleTheta >= 0.785398f)
             {
-                pointProjectionArrow[arrowBalls] = Instantiate(pointProjectionBall, new Vector3(0, 0, 0), Quaternion.identity);
+                PredictFirstBouncePosition();
             }
 
-            numberOfBallsForPoint = arrowBalls;
+            pointProjectionArrow = new List<GameObject>();
+            bounceProjectionArrow = new List<GameObject>();
+            numberOfBallsForPoint -= 1;
+            numberOfBallsForBounce -= 1;
 
-            arrowBalls = 0;
-            for (float i = 0f; i < time2; i += time / 4f)
+            for (float i = 0; i < numberOfBallsForPoint; i ++)
             {
-                bounceProjectionArrow[arrowBalls] = Instantiate(pointProjectionBall, new Vector3(0, 0, 0), Quaternion.identity);
+                pointProjectionArrow.Add(Instantiate(pointProjectionBall, new Vector3(0, 0, 0), Quaternion.identity));
             }
 
-            numberOfBallsForBounce = arrowBalls;
+            for (float i = 0; i < numberOfBallsForBounce; i ++)
+            {
+                bounceProjectionArrow.Add(Instantiate(bounceProjectionBall, new Vector3(0, 0, 0), Quaternion.identity));
+            }
         }
 
         private void FixedUpdate()
         {
             FindInitialAngles();
+            FindTotalTime();
 
-            if (angleTheta >= 0.785398f)
+            FindFinalXZForCurve();
+
+            if (!Double.IsNaN(angleTheta))
             {
-                FindTotalTime();
-                FindFinalXZForCurve();
-
-                if (option == ShootingOptions.Lob)
-                {
-
-                }
                 PredictFirstBouncePosition();
 
                 previousHorizontalCurve = horizontalCurve;
                 previousVerticalCurve = verticalCurve;
 
                 HandleExteriorForces();
+
+                UpdateNewProjectionCoordinates();
+
+                if (time != 0f && !shoot)
+                {
+                    DrawArrowPoint();
+                }
+                if (time2 != 0 && !shoot)
+                {
+                    DrawArrowBounce();
+                }
             }
 
-            UpdateNewProjectionCoordinates();
             UpdateVectorFromBallToProjectionPoint();
         }
 
         // Update is called once per frame
         void Update()
         {
-            if (Double.IsNaN(angleTheta) || shoot)
-            {
-                endPointProjection.GetComponent<MeshRenderer>().enabled = false;
-                if (option == ShootingOptions.Lob)
-                {
-                    bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
-                }
-            }
-            else
-            {
-                endPointProjection.GetComponent<MeshRenderer>().enabled = true;
-                if (option == ShootingOptions.Lob)
-                {
-                    bouncePointProjection.GetComponent<MeshRenderer>().enabled = true;
-                }
-
-                if (option == ShootingOptions.Straight)
-                {
-                    bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
-                }
-                else
-                {
-                    if (endPointProjection.GetComponent<ProjectionController>().angle != 0.0f)
-                    {
-                        bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
-                    }
-                    else
-                    {
-                        bouncePointProjection.GetComponent<MeshRenderer>().enabled = true;
-                    }
-                }
-            }
-
-            if (angleTheta >= 0.785398f)
-            {
-                HandleInput();
-            }
+            HideProjections();
+            HandleInput();
         }
 
         void HandleInput()
@@ -226,6 +206,24 @@ namespace Game.BallController
 
                 // Angle between the X and Z axis.
                 anglePhi = Mathf.Abs(Mathf.Atan(vectorFromBallToProjectionPoint.z / vectorFromBallToProjectionPoint.x));
+
+                if (magnitudeOfVectorXZ == 0f)
+                {
+                    angleTheta = Mathf.PI / 2;
+                    anglePhi = 0f;
+                }
+
+                if (option == ShootingOptions.Straight)
+                {
+                    if (magnitudeOfVectorXZ == 0f)
+                    {
+                        angleTheta = 0f;
+                    }
+                    else
+                    {
+                        angleTheta = Mathf.Atan(vectorFromBallToProjectionPoint.y / magnitudeOfVectorXZ);
+                    }
+                }
             }
         }
 
@@ -235,19 +233,15 @@ namespace Game.BallController
             Vo.y = hit_power * Mathf.Sin(angleTheta);
             Vo.z = hit_power * Mathf.Cos(angleTheta) * Mathf.Sin(anglePhi);
 
-            Vo.x = vectorFromBallToProjectionPoint.x < 0 ? -Vo.x : Vo.x;
-            Vo.z = vectorFromBallToProjectionPoint.z < 0 ? -Vo.z : Vo.z;
-
             if (option == ShootingOptions.Straight)
             {
-                Vo.x /= DUFRESNE_CONSTANT;
-                Vo.z /= DUFRESNE_CONSTANT;
+                float magnitudeOfVectorXZ = Mathf.Sqrt(Mathf.Pow(vectorFromBallToProjectionPoint.x, 2) + Mathf.Pow(vectorFromBallToProjectionPoint.z, 2));
+                Vo.x = magnitudeOfVectorXZ * Mathf.Cos(angleTheta) * Mathf.Cos(anglePhi);
+                Vo.z = magnitudeOfVectorXZ * Mathf.Cos(angleTheta) * Mathf.Sin(anglePhi);
             }
-            else
-            {
-                Vo.x /= 1f;
-                Vo.z /= 1f;
-            }
+
+            Vo.x = vectorFromBallToProjectionPoint.x < 0 ? -Vo.x : Vo.x;
+            Vo.z = vectorFromBallToProjectionPoint.z < 0 ? -Vo.z : Vo.z;
         }
 
         void FindTotalTime()
@@ -256,9 +250,31 @@ namespace Game.BallController
             {
                 //without change in y
                 //time = (2 / -Physics.gravity.y) * hit_power * Mathf.Sin(angleTheta);
+                if (option == ShootingOptions.Lob)
+                {
+                    time = (-hit_power * Mathf.Sin(angleTheta) - Mathf.Sqrt(Mathf.Pow(hit_power * Mathf.Sin(angleTheta), 2) - (4 * (vectorFromBallToProjectionPoint.y - transform.position.y) * -Physics.gravity.y / 2))) / Physics.gravity.y;
+                }
+                else
+                {
+                    float magnitudeOfVectorXZ = Mathf.Sqrt(Mathf.Pow(vectorFromBallToProjectionPoint.x, 2) + Mathf.Pow(vectorFromBallToProjectionPoint.z, 2));
+                    float frictionForce = dynamicFrictionValueBG != 0.0f && option == ShootingOptions.Straight ? frictionForce = 0.31f + DUFRESNE_CONSTANT : frictionForce = 1f;
 
-                time = (-hit_power * Mathf.Sin(angleTheta) - Mathf.Sqrt(Mathf.Pow(hit_power * Mathf.Sin(angleTheta), 2) - (4 * (vectorFromBallToProjectionPoint.y - transform.position.y) * -Physics.gravity.y / 2))) / Physics.gravity.y;
+                    time = magnitudeOfVectorXZ / frictionForce;
+                }
             }
+        }
+
+        void UpdateVectorFromBallToProjectionPoint()
+        {
+            if (horizontalCurve == 0.0f && verticalCurve == 0.0f)
+            {
+                vectorFromBallToProjectionPoint = endPointProjection.transform.position - transform.position;
+            }
+        }
+
+        void CorrectProjectionPosition()
+        {
+            endPointProjection.transform.position = new Vector3(finalX, endPointProjection.transform.position.y, finalZ);
         }
 
         void FindFinalXZForCurve()
@@ -272,22 +288,25 @@ namespace Game.BallController
 
                 if (verticalCurve != 0.0f)
                 {
+                    float accelerationX = (Mathf.Cos(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(time, 2));
+                    float accelerationZ = (Mathf.Sin(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(time, 2));
+
                     if (vectorFromBallToProjectionPoint.x < 0)
                     {
-                        finalX = transform.position.x + (Vo.x * time) - (Mathf.Cos(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(time, 2));
+                        finalX = transform.position.x + (Vo.x * time) - accelerationX;
                     }
                     else
                     {
-                        finalX = transform.position.x + (Vo.x * time) + (Mathf.Cos(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(time, 2));
+                        finalX = transform.position.x + (Vo.x * time) + accelerationX;
                     }
 
                     if (vectorFromBallToProjectionPoint.z < 0)
                     {
-                        finalZ = transform.position.z + (Vo.z * time) - (Mathf.Sin(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(time, 2));
+                        finalZ = transform.position.z + (Vo.z * time) - accelerationZ;
                     }
                     else
                     {
-                        finalZ = transform.position.z + (Vo.z * time) + (Mathf.Sin(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(time, 2));
+                        finalZ = transform.position.z + (Vo.z * time) + accelerationZ;
                     }
                 }
 
@@ -298,8 +317,6 @@ namespace Game.BallController
 
                     // Adjust to axis.
                     finalX = vectorFromBallToProjectionPoint.z < 0 ? finalX + (hypothenuse * Mathf.Sin(anglePhi)) : finalX - (hypothenuse * Mathf.Sin(anglePhi));
-
-                    // Adjust to axis.
                     finalZ = vectorFromBallToProjectionPoint.x < 0 ? finalZ - (hypothenuse * Mathf.Cos(anglePhi)) : finalZ + (hypothenuse * Mathf.Cos(anglePhi));
                 }
 
@@ -319,19 +336,6 @@ namespace Game.BallController
 
                 CorrectProjectionPosition();
             }
-        }
-
-        void UpdateVectorFromBallToProjectionPoint()
-        {
-            if (horizontalCurve == 0.0f && verticalCurve == 0.0f)
-            {
-                vectorFromBallToProjectionPoint = endPointProjection.transform.position - transform.position;
-            }
-        }
-
-        void CorrectProjectionPosition()
-        {
-            endPointProjection.transform.position = new Vector3(finalX, endPointProjection.transform.position.y, finalZ);
         }
 
         void PredictFirstBouncePosition()
@@ -390,7 +394,12 @@ namespace Game.BallController
                     }
                 }
 
-                bouncePointProjection.transform.position = new Vector3(bounceCoordinates.x, bouncePointProjection.transform.position.y, bounceCoordinates.z);
+                if (Double.IsNaN(bounceCoordinates.y))
+                {
+                    bounceCoordinates = transform.position;
+                }
+
+                bouncePointProjection.transform.position = new Vector3(bounceCoordinates.x, bounceCoordinates.y, bounceCoordinates.z);
             }
         }
 
@@ -400,14 +409,208 @@ namespace Game.BallController
             {
                 endPointProjection.transform.position = transform.position;
                 bouncePointProjection.transform.position = transform.position;
+                for (int arrowBalls = 0; arrowBalls < numberOfBallsForPoint; arrowBalls++)
+                {
+                    pointProjectionArrow[arrowBalls].transform.position = transform.position;
+                }
+                for (int arrowBalls = 0; arrowBalls < numberOfBallsForBounce; arrowBalls++)
+                {
+                    bounceProjectionArrow[arrowBalls].transform.position = transform.position;
+                }
                 shoot = false;
                 timer = 0f;
             }
         }
 
-        void DrawArrow()
+        void DrawArrowPoint()
         {
-            //for (int arrowBalls = 0; arrowBalls <= )
+            float frictionForce = dynamicFrictionValueBG != 0.0f && option == ShootingOptions.Straight ? frictionForce = 1f + DUFRESNE_CONSTANT : frictionForce = 0f;
+
+            for (int arrowBalls = 0; arrowBalls < numberOfBallsForPoint; arrowBalls++)
+            {
+                Vector3 arrowBallPosition = pointProjectionArrow[arrowBalls].transform.position;
+                float fractionOfTime = (time / 8f) * (arrowBalls + 1);
+
+                arrowBallPosition.x = (endPointProjection.transform.position.x - transform.position.x) * fractionOfTime / time;
+                arrowBallPosition.z = (endPointProjection.transform.position.z - transform.position.z) * fractionOfTime / time;
+
+                if (verticalCurve != 0.0f)
+                {
+                    float accelerationX = (Mathf.Cos(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(fractionOfTime, 2));
+                    float accelerationZ = (Mathf.Sin(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(fractionOfTime, 2));
+
+                    if (vectorFromBallToProjectionPoint.x < 0)
+                    {
+                        arrowBallPosition.x = transform.position.x + (Vo.x * fractionOfTime) - accelerationX;
+                    }
+                    else
+                    {
+                        arrowBallPosition.x = transform.position.x + (Vo.x * fractionOfTime) + accelerationX;
+                    }
+
+                    if (vectorFromBallToProjectionPoint.z < 0)
+                    {
+                        arrowBallPosition.z = transform.position.z + (Vo.z * fractionOfTime) - accelerationZ;
+                    }
+                    else
+                    {
+                        arrowBallPosition.z = transform.position.z + (Vo.z * fractionOfTime) - accelerationZ;
+                    }
+                }
+
+                if (horizontalCurve != 0.0f && option == ShootingOptions.Straight)
+                {
+                    // Need this for when vectorFromBallToProjectionPoint is diagonal.
+                    float hypothenuse = (((-horizontalCurve / rb.mass) / 2) * Mathf.Pow(fractionOfTime, 2));
+
+                    // Adjust to axis.
+                    arrowBallPosition.x = vectorFromBallToProjectionPoint.z < 0 ? arrowBallPosition.x + (hypothenuse * Mathf.Sin(anglePhi)) : arrowBallPosition.x - (hypothenuse * Mathf.Sin(anglePhi));
+                    arrowBallPosition.z = vectorFromBallToProjectionPoint.x < 0 ? arrowBallPosition.z - (hypothenuse * Mathf.Cos(anglePhi)) : arrowBallPosition.z + (hypothenuse * Mathf.Cos(anglePhi));
+                }
+
+                if (verticalCurve == 0.0f && horizontalCurve == 0.0f)
+                {
+                    arrowBallPosition.x = (endPointProjection.transform.position.x - transform.position.x) * fractionOfTime / time;
+                    arrowBallPosition.z = (endPointProjection.transform.position.z - transform.position.z) * fractionOfTime / time;
+                }
+
+                if (option == ShootingOptions.Lob)
+                {
+                    arrowBallPosition.y = transform.position.y + (Vo.y * fractionOfTime) + (Physics.gravity.y / rb.mass) / 2 * Mathf.Pow(fractionOfTime, 2);
+                }
+                else
+                {
+                    float magnitudeOfVectorXZ = Mathf.Sqrt(Mathf.Pow(vectorFromBallToProjectionPoint.x, 2) + Mathf.Pow(vectorFromBallToProjectionPoint.z, 2));
+
+                    arrowBallPosition.y = vectorFromBallToProjectionPoint.y / magnitudeOfVectorXZ * fractionOfTime;
+                }
+
+                if (Double.IsNaN(arrowBallPosition.y))
+                {
+                    arrowBallPosition.y = transform.position.y;
+                }
+
+                if (rb.velocity.magnitude == 0f && shoot)
+                {
+                    arrowBallPosition = transform.position;
+                }
+
+                pointProjectionArrow[arrowBalls].transform.position = new Vector3(arrowBallPosition.x, arrowBallPosition.y, arrowBallPosition.z) + transform.position;
+            }
+        }
+
+        void DrawArrowBounce()
+        {
+            for (int arrowBalls = 0; arrowBalls < numberOfBallsForBounce; arrowBalls++)
+            {
+                Vector3 arrowBallPosition = pointProjectionArrow[arrowBalls].transform.position;
+                float fractionOfTime = (time2 / 6f) * (arrowBalls + 1);
+
+                arrowBallPosition.x = endPointProjection.transform.position.x + (VoBounce.x * fractionOfTime);
+                arrowBallPosition.y = endPointProjection.transform.position.y + (VoBounce.y * fractionOfTime) - (-Physics.gravity.y / 2 * Mathf.Pow(fractionOfTime, 2));
+                arrowBallPosition.z = endPointProjection.transform.position.z + (VoBounce.z * fractionOfTime);
+
+                if (verticalCurve != 0.0f)
+                {
+                    if (vectorFromBallToProjectionPoint.x < 0)
+                    {
+                        arrowBallPosition.x = bounceCoordinates.x - (Mathf.Cos(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(fractionOfTime, 2));
+                    }
+                    else
+                    {
+                        arrowBallPosition.x = bounceCoordinates.x + (Mathf.Cos(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(fractionOfTime, 2));
+                    }
+
+                    if (vectorFromBallToProjectionPoint.z < 0)
+                    {
+                        arrowBallPosition.z = bounceCoordinates.z - (Mathf.Sin(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(fractionOfTime, 2));
+                    }
+                    else
+                    {
+                        arrowBallPosition.z = bounceCoordinates.z + (Mathf.Sin(anglePhi) * (-verticalCurve / rb.mass) / 2 * Mathf.Pow(fractionOfTime, 2));
+                    }
+                }
+
+                if (Double.IsNaN(arrowBallPosition.y))
+                {
+                    arrowBallPosition = transform.position;
+                }
+
+                bounceProjectionArrow[arrowBalls].transform.position = new Vector3(arrowBallPosition.x, arrowBallPosition.y, arrowBallPosition.z);
+            }
+        }
+
+        void HideProjections()
+        {
+            if (Double.IsNaN(angleTheta) || shoot)
+            {
+                endPointProjection.GetComponent<MeshRenderer>().enabled = false;
+
+                for (int arrowBalls = 0; arrowBalls < numberOfBallsForPoint; arrowBalls++)
+                {
+                    pointProjectionArrow[arrowBalls].GetComponent<MeshRenderer>().enabled = false;
+                }
+
+                if (option == ShootingOptions.Lob)
+                {
+                    bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
+
+                    for (int arrowBalls = 0; arrowBalls < numberOfBallsForBounce; arrowBalls++)
+                    {
+                        bounceProjectionArrow[arrowBalls].GetComponent<MeshRenderer>().enabled = false;
+                    }
+                }
+            }
+            else
+            {
+                endPointProjection.GetComponent<MeshRenderer>().enabled = true;
+
+                for (int arrowBalls = 0; arrowBalls < numberOfBallsForPoint; arrowBalls++)
+                {
+                    pointProjectionArrow[arrowBalls].GetComponent<MeshRenderer>().enabled = true;
+                }
+
+                if (option == ShootingOptions.Lob)
+                {
+                    bouncePointProjection.GetComponent<MeshRenderer>().enabled = true;
+
+                    for (int arrowBalls = 0; arrowBalls < numberOfBallsForBounce; arrowBalls++)
+                    {
+                        bounceProjectionArrow[arrowBalls].GetComponent<MeshRenderer>().enabled = true;
+                    }
+                }
+
+                if (option == ShootingOptions.Straight)
+                {
+                    bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
+
+                    for (int arrowBalls = 0; arrowBalls < numberOfBallsForBounce; arrowBalls++)
+                    {
+                        bounceProjectionArrow[arrowBalls].GetComponent<MeshRenderer>().enabled = false;
+                    }
+                }
+                else
+                {
+                    if (endPointProjection.GetComponent<ProjectionController>().angle != 0.0f)
+                    {
+                        bouncePointProjection.GetComponent<MeshRenderer>().enabled = false;
+
+                        for (int arrowBalls = 0; arrowBalls < numberOfBallsForBounce; arrowBalls++)
+                        {
+                            bounceProjectionArrow[arrowBalls].GetComponent<MeshRenderer>().enabled = false;
+                        }
+                    }
+                    else
+                    {
+                        bouncePointProjection.GetComponent<MeshRenderer>().enabled = true;
+
+                        for (int arrowBalls = 0; arrowBalls < numberOfBallsForBounce; arrowBalls++)
+                        {
+                            bounceProjectionArrow[arrowBalls].GetComponent<MeshRenderer>().enabled = true;
+                        }
+                    }
+                }
+            }
         }
     }
 }
