@@ -47,7 +47,7 @@ public class ProjectionController : MonoBehaviour
     private void MoveAcrossSurface()
     {
         RaycastHit hit;
-        int layerMask = ~LayerMask.GetMask("Ball");
+        int layerMask = ~LayerMask.GetMask("Player");
 
         if (Physics.BoxCast(transform.position + new Vector3(0, 100f, 0), new Vector3(0.5f, 0.5f, 0.5f), -transform.up, out hit, Quaternion.identity, 200f, layerMask) == true )
         {
