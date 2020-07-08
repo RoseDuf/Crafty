@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -420,7 +420,7 @@ GameObject:
   - component: {fileID: 518927139}
   - component: {fileID: 518927138}
   - component: {fileID: 518927143}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: Ball
   m_TagString: TargetCreature
   m_Icon: {fileID: 0}
@@ -536,6 +536,8 @@ MonoBehaviour:
     type: 3}
   horizontalCurve: 0
   verticalCurve: 0
+  angleTheta: 0
+  anglePhi: 0
   groundMaterial: {fileID: 13400000, guid: 396368c766b163d4a8404325370f54ad, type: 2}
   pointProjectionBall: {fileID: 8049575586922491507, guid: 98cb2e35bfdd34b48b044c7390ede6f6,
     type: 3}
