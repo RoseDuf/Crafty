@@ -538,11 +538,16 @@ MonoBehaviour:
   verticalCurve: 0
   angleTheta: 0
   anglePhi: 0
+  Vo: {x: 0, y: 0, z: 0}
+  time: 0
+  vectorFromBallToProjectionPoint: {x: 0, y: 0, z: 0}
   groundMaterial: {fileID: 13400000, guid: 396368c766b163d4a8404325370f54ad, type: 2}
   pointProjectionBall: {fileID: 8049575586922491507, guid: 98cb2e35bfdd34b48b044c7390ede6f6,
     type: 3}
   bounceProjectionBall: {fileID: 5382129183293771972, guid: 58de91343ee93bb4bbe76b15c866df09,
     type: 3}
+  numberOfBallsForPoint: 8
+  numberOfBallsForBounce: 6
 --- !u!1 &633744715
 GameObject:
   m_ObjectHideFlags: 0
