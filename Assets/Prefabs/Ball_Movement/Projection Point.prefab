@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 7448385349154328844}
   - component: {fileID: 7448385349154328847}
   - component: {fileID: 7448385349154328834}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Projection Point
-  m_TagString: end point
+  m_TagString: Projection
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -220,6 +220,75 @@ MonoBehaviour:
   minDistance: 0.5
   maxDistance: 4
   smooth: 15
+--- !u!1001 &221107965
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 8034391092984340171, guid: f8843293663deed4dbfc2048fab4d732,
+        type: 3}
+      propertyPath: m_Name
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034391092984340172, guid: f8843293663deed4dbfc2048fab4d732,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034391092984340172, guid: f8843293663deed4dbfc2048fab4d732,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.72
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034391092984340172, guid: f8843293663deed4dbfc2048fab4d732,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3.81
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034391092984340172, guid: f8843293663deed4dbfc2048fab4d732,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034391092984340172, guid: f8843293663deed4dbfc2048fab4d732,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034391092984340172, guid: f8843293663deed4dbfc2048fab4d732,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034391092984340172, guid: f8843293663deed4dbfc2048fab4d732,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034391092984340172, guid: f8843293663deed4dbfc2048fab4d732,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034391092984340172, guid: f8843293663deed4dbfc2048fab4d732,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034391092984340172, guid: f8843293663deed4dbfc2048fab4d732,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8034391092984340172, guid: f8843293663deed4dbfc2048fab4d732,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f8843293663deed4dbfc2048fab4d732, type: 3}
 --- !u!1 &414500052
 GameObject:
   m_ObjectHideFlags: 0
@@ -530,17 +599,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hit_power: 10
-  endPointProjectionBall: {fileID: 7448385349154328846, guid: 53445573f36cdaa4393a296aa83bf506,
-    type: 3}
-  bouncePointProjectionBall: {fileID: 7847886434740949183, guid: 6a89bbda1004f1440b7dff4fe2f6a024,
-    type: 3}
   horizontalCurve: 0
   verticalCurve: 0
-  angleTheta: 0
-  anglePhi: 0
-  Vo: {x: 0, y: 0, z: 0}
-  time: 0
-  vectorFromBallToProjectionPoint: {x: 0, y: 0, z: 0}
   groundMaterial: {fileID: 13400000, guid: 396368c766b163d4a8404325370f54ad, type: 2}
   pointProjectionBall: {fileID: 8049575586922491507, guid: 98cb2e35bfdd34b48b044c7390ede6f6,
     type: 3}
