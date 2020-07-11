@@ -2,6 +2,8 @@
 
 using System.Collections;
 
+using Game.Player;
+
 namespace Game.Cameras
 {
     public class GameplayCamera : MonoBehaviour
@@ -44,6 +46,9 @@ namespace Game.Cameras
         private float maxDistanceToTarget;
         private float minDistanceToTarget;
 
+        private GameObject playerFocus;
+        private GameObject projectionFocus;
+
         private void Awake()
         {
             mode = Mode.LockedOnTarget;
@@ -56,6 +61,17 @@ namespace Game.Cameras
 
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+        }
+
+        private void Start()
+        {
+            playerFocus = GameObject.FindGameObjectWithTag("Player");
+            projectionFocus = GameObject.FindGameObjectWithTag("Projection");
+        }
+
+        private void Update()
+        {
+            ChangeTarget();
         }
 
         private void LateUpdate()
@@ -188,6 +204,18 @@ namespace Game.Cameras
             yield return new WaitForSeconds(timeInSeconds);
 
             obj.SetActive(false);
+        }
+
+        private void ChangeTarget()
+        {
+            if (playerFocus.GetComponent<BallController>().shoot)
+            {
+                target = playerFocus.transform;
+            }
+            else
+            {
+                target = projectionFocus.transform;
+            }
         }
     }
 }
