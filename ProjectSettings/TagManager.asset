@@ -4,12 +4,12 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - end point
   - Target
   - TargetCreature
   - SceneRoot
   - Floor
   - Ball
+  - Projection
   layers:
   - Default
   - TransparentFX
@@ -22,7 +22,7 @@ TagManager:
   - Hole
   - Player
   - Star
-  - 
+  - Target
   - 
   - 
   - 
