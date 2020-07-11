@@ -12,7 +12,7 @@ namespace Game.Player
         [SerializeField] float hit_power;
         [SerializeField] GameObject endPointProjection;
         [SerializeField] GameObject bouncePointProjection;
-        [SerializeField] float horizontalCurve; //temporaty, will get this from meters later
+        float horizontalCurve; //temporaty, will get this from meters later
         [SerializeField] float verticalCurve; //temporaty, will get this from meters later
 
         private Rigidbody rb;
@@ -171,10 +171,10 @@ namespace Game.Player
 
                 if (timer <= time + timeForBounce)
                 {
-                    if (horizontalCurve != 0)
-                    {
-                        rb.AddForce(Vector3.Normalize(Vector3.Cross(vectorFromBallToProjectionPoint, Vector3.up)) * -horizontalCurve, ForceMode.Acceleration);
-                    }
+                    //if (horizontalCurve != 0)
+                    //{
+                    //    rb.AddForce(Vector3.Normalize(Vector3.Cross(vectorFromBallToProjectionPoint, Vector3.up)) * -horizontalCurve, ForceMode.Acceleration);
+                    //}
                     if (verticalCurve != 0)
                     {
                         rb.AddForce(Vector3.Normalize(vectorFromBallToProjectionPoint) * -verticalCurve, ForceMode.Acceleration);
@@ -281,10 +281,9 @@ namespace Game.Player
                 finalX = vectorFromBallToProjectionPoint.x;
                 finalZ = vectorFromBallToProjectionPoint.z;
 
-                float frictionForce = dynamicFrictionValueBG != 0.0f && option == ShootingOptions.Straight ? frictionForce = 1f + DUFRESNE_CONSTANT : frictionForce = 0f;
-
                 if (verticalCurve != 0.0f)
                 {
+                    float frictionForce = dynamicFrictionValueBG != 0.0f && option == ShootingOptions.Straight ? frictionForce = 1f + DUFRESNE_CONSTANT : frictionForce = 0f;
                     float accelerationX = (Mathf.Cos(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(time, 2));
                     float accelerationZ = (Mathf.Sin(anglePhi) * ((-verticalCurve - frictionForce) / rb.mass) / 2 * Mathf.Pow(time, 2));
 
@@ -307,15 +306,19 @@ namespace Game.Player
                     }
                 }
 
-                if (horizontalCurve != 0.0f && option == ShootingOptions.Straight)
-                {
-                    // Need this for when vectorFromBallToProjectionPoint is diagonal.
-                    float hypothenuse = (((-horizontalCurve / rb.mass) / 2) * Mathf.Pow(time, 2));
+                //if (horizontalCurve != 0.0f && option == ShootingOptions.Straight)
+                //{
+                //    float frictionForce = dynamicFrictionValueBG != 0.0f && option == ShootingOptions.Straight ? frictionForce = 1+  DUFRESNE_CONSTANT : frictionForce = 0f;
+                //    // Need this for when vectorFromBallToProjectionPoint is diagonal.
+                //    float forceInX = ((((-horizontalCurve / rb.mass) / 2) * Mathf.Pow(time, 2)) * Mathf.Sin(anglePhi)) + ((((-frictionForce / rb.mass) / 2) * Mathf.Pow(time, 2)) * Mathf.Sin(anglePhi));
+                //    float forceInZ = ((((-horizontalCurve / rb.mass) / 2) * Mathf.Pow(time, 2)) * Mathf.Cos(anglePhi)) + ((((-frictionForce / rb.mass) / 2) * Mathf.Pow(time, 2)) * Mathf.Cos(anglePhi));
+                //    print("X: " + forceInX);
+                //    print("Z: " + forceInZ);
 
-                    // Adjust to axis.
-                    finalX = vectorFromBallToProjectionPoint.z < 0 ? finalX + (Vo.x * time) + (hypothenuse * Mathf.Sin(anglePhi)) : finalX + (Vo.x * time) - (hypothenuse * Mathf.Sin(anglePhi));
-                    finalZ = vectorFromBallToProjectionPoint.x < 0 ? finalZ + (Vo.x * time) - (hypothenuse * Mathf.Cos(anglePhi)) : finalZ + (Vo.x * time) + (hypothenuse * Mathf.Cos(anglePhi));
-                }
+                //    // Adjust to axis.
+                //    finalX = vectorFromBallToProjectionPoint.x < 0 ? transform.localPosition.x + (Vo.x * time) - forceInX : transform.localPosition.x + (Vo.x * time) + forceInX;
+                //    finalZ = vectorFromBallToProjectionPoint.z < 0 ? transform.localPosition.z + (Vo.z * time) - forceInZ : transform.localPosition.z + (Vo.z * time) + forceInZ;
+                //}
 
                 if (verticalCurve == 0.0f && horizontalCurve == 0.0f)
                 {
@@ -456,15 +459,15 @@ namespace Game.Player
                     }
                 }
 
-                if (horizontalCurve != 0.0f && option == ShootingOptions.Straight)
-                {
-                    // Need this for when vectorFromBallToProjectionPoint is diagonal.
-                    float hypothenuse = (((-horizontalCurve / rb.mass) / 2) * Mathf.Pow(fractionOfTime, 2));
+                //if (horizontalCurve != 0.0f && option == ShootingOptions.Straight)
+                //{
+                //    // Need this for when vectorFromBallToProjectionPoint is diagonal.
+                //    float hypothenuse = (((-horizontalCurve / rb.mass) / 2) * Mathf.Pow(fractionOfTime, 2));
 
-                    // Adjust to axis.
-                    arrowBallPosition.x = vectorFromBallToProjectionPoint.z < 0 ? arrowBallPosition.x + (hypothenuse * Mathf.Sin(anglePhi)) : arrowBallPosition.x - (hypothenuse * Mathf.Sin(anglePhi));
-                    arrowBallPosition.z = vectorFromBallToProjectionPoint.x < 0 ? arrowBallPosition.z - (hypothenuse * Mathf.Cos(anglePhi)) : arrowBallPosition.z + (hypothenuse * Mathf.Cos(anglePhi));
-                }
+                //    // Adjust to axis.
+                //    arrowBallPosition.x = vectorFromBallToProjectionPoint.z < 0 ? arrowBallPosition.x + (hypothenuse * Mathf.Sin(anglePhi)) : arrowBallPosition.x - (hypothenuse * Mathf.Sin(anglePhi));
+                //    arrowBallPosition.z = vectorFromBallToProjectionPoint.x < 0 ? arrowBallPosition.z - (hypothenuse * Mathf.Cos(anglePhi)) : arrowBallPosition.z + (hypothenuse * Mathf.Cos(anglePhi));
+                //}
 
                 if (verticalCurve == 0.0f && horizontalCurve == 0.0f)
                 {
