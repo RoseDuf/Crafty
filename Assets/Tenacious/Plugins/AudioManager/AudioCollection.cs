@@ -16,7 +16,7 @@ namespace Tenacious.Audio
         private Dictionary<string, int> musicDictionary;
         private Dictionary<string, int> soundDictionary;
 
-        protected virtual void Awake()
+        protected virtual void OnEnable()
         {
             if (musicList == null) musicList = new List<Audio>();
             if (soundList == null) soundList = new List<Audio>();
