@@ -11,6 +11,24 @@ namespace Game.UI.HUDs
         [SerializeField] private PowerupSlot powerupSlot;
         [SerializeField] private ShotMetricBars shotMetricsBars;
 
+        public HealthBar HealthBar
+        {
+            get { return healthBar; }
+        }
 
+        public StarBar StarBar
+        {
+            get { return starBar; }
+        }
+
+        public PowerupSlot PowerupSlot
+        {
+            get { return powerupSlot; }
+        }
+
+        public ShotMetricBars ShotMetricBars
+        {
+            get { return shotMetricsBars; }
+        }
     }
 }
