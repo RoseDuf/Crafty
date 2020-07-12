@@ -166,7 +166,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8034391092984340171}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1472787510643205882}
@@ -262,10 +262,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hit_power: 10
-  horizontalCurve: 0
+  endPointProjection: {fileID: 0}
+  bouncePointProjection: {fileID: 0}
   verticalCurve: 0
-  VoBounce: {x: 0, y: 0, z: 0}
-  time2: 0
   groundMaterial: {fileID: 13400000, guid: 396368c766b163d4a8404325370f54ad, type: 2}
   pointProjectionBall: {fileID: 8049575586922491507, guid: 98cb2e35bfdd34b48b044c7390ede6f6,
     type: 3}
