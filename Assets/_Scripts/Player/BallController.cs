@@ -471,13 +471,13 @@ namespace Game.Player
 
                 if (verticalCurve == 0.0f && horizontalCurve == 0.0f)
                 {
-                    arrowBallPosition.x = (endPointProjection.transform.position.x - transform.position.x) * fractionOfTime / time;
-                    arrowBallPosition.z = (endPointProjection.transform.position.z - transform.position.z) * fractionOfTime / time;
+                    arrowBallPosition.x = vectorFromBallToProjectionPoint.x * fractionOfTime / time;
+                    arrowBallPosition.z = vectorFromBallToProjectionPoint.z * fractionOfTime / time;
                 }
 
                 if (option == ShootingOptions.Lob)
                 {
-                    arrowBallPosition.y = transform.position.y + (Vo.y * fractionOfTime) + (Physics.gravity.y / rb.mass) / 2 * Mathf.Pow(fractionOfTime, 2);
+                    arrowBallPosition.y = (Vo.y * fractionOfTime) + ((Physics.gravity.y / rb.mass) / 2 * Mathf.Pow(fractionOfTime, 2));
                 }
                 else
                 {
@@ -486,7 +486,7 @@ namespace Game.Player
                     arrowBallPosition.y = vectorFromBallToProjectionPoint.y / magnitudeOfVectorXZ * fractionOfTime;
                 }
 
-                if (rb.velocity.magnitude == 0f && shoot)
+                if ((rb.velocity.magnitude == 0f && shoot) || Double.IsNaN(arrowBallPosition.y))
                 {
                     arrowBallPosition = transform.position;
                 }
