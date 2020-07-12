@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7636719940621761363}
   - component: {fileID: 6797286188729890038}
   - component: {fileID: 8768570663502413884}
+  - component: {fileID: 6990637325600872039}
   m_Layer: 0
   m_Name: Sandbox
   m_TagString: Untagged
@@ -83,3 +84,17 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!64 &6990637325600872039
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7111400414189625833}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -8634391149642636892, guid: 5d96f2066cc75ab4baf327c2c981083a, type: 3}
