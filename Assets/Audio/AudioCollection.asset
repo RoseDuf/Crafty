@@ -12,5 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0b42d80def744d41aa773126b723b3a, type: 3}
   m_Name: AudioCollection
   m_EditorClassIdentifier: 
-  musicList: []
+  musicList:
+  - audioClip: {fileID: 8300000, guid: 114b9d4b48185e9429e65331ce56f33e, type: 3}
+    loop: 1
+    fade: 1
+    volumeScale: 0
   soundList: []

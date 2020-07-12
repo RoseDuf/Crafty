@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 using Game.Objects.Creatures.Targets;
 using Game.UI.Menus;
+using Tenacious.Audio;
 
 namespace Game.Scenes
 {
@@ -26,6 +27,8 @@ namespace Game.Scenes
                 target.OnCapture += OnTargetCapture;
                 targets.Add(target);
             }
+
+            AudioManager.Instance.PlayMusic("GameGolf");
         }
 
         private void Update()
