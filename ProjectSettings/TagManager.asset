@@ -8,6 +8,8 @@ TagManager:
   - Target
   - TargetCreature
   - SceneRoot
+  - Floor
+  - Ball
   layers:
   - Default
   - TransparentFX
