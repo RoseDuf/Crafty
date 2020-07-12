@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1315557539284165219}
   - component: {fileID: 1315557539284165221}
   - component: {fileID: 1315557539284165220}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: VanillaTarget
   m_TagString: TargetCreature
   m_Icon: {fileID: 0}
@@ -75,7 +75,7 @@ GameObject:
   - component: {fileID: 7185879897774343203}
   - component: {fileID: 2987454462880240944}
   - component: {fileID: 6002252679209278356}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -122,7 +122,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 15303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 90205bde644cb3347816c4b9c703a527, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -150,6 +150,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1315557539284165219}
     m_Modifications:
+    - target: {fileID: 1203018337875797781, guid: 31fabbefaf59bb741b405f23dc402e93,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 1461681617556734789, guid: 31fabbefaf59bb741b405f23dc402e93,
         type: 3}
       propertyPath: m_Name
@@ -159,6 +164,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1461681617556734789, guid: 31fabbefaf59bb741b405f23dc402e93,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 1461681617556734790, guid: 31fabbefaf59bb741b405f23dc402e93,
         type: 3}
@@ -214,6 +224,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4140104858502862853, guid: 31fabbefaf59bb741b405f23dc402e93,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 6877734156707550948, guid: 31fabbefaf59bb741b405f23dc402e93,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8396730631981461780, guid: 31fabbefaf59bb741b405f23dc402e93,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 31fabbefaf59bb741b405f23dc402e93, type: 3}
